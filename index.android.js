@@ -7,6 +7,7 @@ import React, {
   AppRegistry,
   Component,
   PanResponder,
+  StyleSheet,
   Text,
   Image,
   View
@@ -42,6 +43,7 @@ class SimpleWatermark extends Component {
       rotate: '0deg',
       scale: 1.0,
       imagesource: {uri: 'https://facebook.github.io/react/img/logo_og.png'},
+      bgimage: {uri: 'https://facebook.github.io/react/img/logo_og.png'},
       height: 100,
       width: 100
     };
@@ -69,9 +71,16 @@ class SimpleWatermark extends Component {
         const w = (ratio > 1.0) ? LONG_EDGE/ratio:LONG_EDGE;
         const height = response.isVertical ? h:w;
         const width = response.isVertical ? w:h;
+        let { bgimage } = this.state;
+        if (response.images) {
+          console.log(response.images)
+          bgimage = {uri: response.images[1].uri, isStatic: true,
+            isVertical: response.images[1].isVertical};
+        }
 
         this.setState(Object.assign({}, this.state, {
           imagesource: source,
+          bgimage,
           height,
           width
         }));
@@ -122,24 +131,41 @@ class SimpleWatermark extends Component {
       {scale}
     ];
     return (
-      <View>
+      <View style={styles.container}>
         <Text> x: {this.state.translateX}</Text>
         <Text> y: {this.state.translateY}</Text>
         <Text> rotate: {this.state.rotate}</Text>
         <Text> scale: {this.state.scale}</Text>
-        <PannableImage
-          source={this.state.imagesource}
-          style={{ height, width}}
-          onPan={this.onPan.bind(this)}
-          onScaleStart={this.onScaleStart.bind(this)}
-          onScale={this.onScale.bind(this)}
-          onRotateStart={this.onRotateStart.bind(this)}
-          onRotate={this.onRotate.bind(this)}
-          onRotateEnd={this.debugState.bind(this)}
-          panDecoratorStyle={{transform}} />
+        <Image
+          source={this.state.bgimage}
+          style={(this.state.bgimage.isVertical) ?
+            styles.verticalImage:styles.horizentalImage}
+          >
+          <PannableImage
+            source={this.state.imagesource}
+            style={{ height, width}}
+            onPan={this.onPan.bind(this)}
+            onScaleStart={this.onScaleStart.bind(this)}
+            onScale={this.onScale.bind(this)}
+            onRotateStart={this.onRotateStart.bind(this)}
+            onRotate={this.onRotate.bind(this)}
+            onRotateEnd={this.debugState.bind(this)}
+            panDecoratorStyle={{transform}} />
+        </Image>
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
+  horizentalImage: {
+    flex: 1
+  },
+  verticalImage: {
+  }
+});
 
 AppRegistry.registerComponent('SimpleWatermark', () => SimpleWatermark);
