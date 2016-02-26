@@ -12,9 +12,7 @@ import React, {
   View
 } from 'react-native';
 
-import { pannable } from 'react-native-gesture-recognizers';
-import rotatable from './rotatable.js';
-import scalable from './scalable.js';
+import { pannable, rotatable, scalable } from 'react-native-gesture-recognizers';
 const { ImagePickerManager } = React.NativeModules;
 
 @rotatable
