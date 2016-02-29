@@ -27,66 +27,104 @@ class PannableImage extends Component {
   }
 }
 
-const options = {
-  mediaType: 'photo',
-  videoQuality: 'high',
-  noData: true,
-  multiple: true
-};
-
 class SimpleWatermark extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      watermark: {
+        uri: 'https://facebook.github.io/react/img/logo_og.png',
+        height: 200,
+        width: 200
+      },
+      images: [{uri: 'https://facebook.github.io/react/img/logo_og.png'}]
+    };
+  }
+
+  selectWatermark(response) {
+    const LONG_EDGE = 250;
+    const ratio = response.height / response.width;
+    const h = (ratio > 1.0) ? LONG_EDGE:LONG_EDGE*ratio;
+    const w = (ratio > 1.0) ? LONG_EDGE/ratio:LONG_EDGE;
+    const height = response.isVertical ? h:w;
+    const width = response.isVertical ? w:h;
+
+    const watermark = {
+      uri: response.uri,
+      isStatic: true,
+      height,
+      width
+    };
+    const {images} = this.state;
+
+    this.setState({ watermark, images });
+  }
+
+  selectPhoto(response) {
+    const {watermark} = this.state;
+    const images = (response.images) ? response.images.map((i)=>
+      ({uri: i.uri, isStatic: true})):[{uri: response.uri, isStatic:true}];
+
+    this.setState({ watermark, images });
+
+  }
+
+  launchImageLibrary(options, callback) {
+    const defOption = {
+      mediaType: 'photo',
+      videoQuality: 'high',
+      noData: true,
+      multiple: true
+    };
+    ImagePickerManager.launchImageLibrary(Object.assign({}, defOption, options),
+      (response) => {
+        if (response.didCancel) {
+          return;
+        }
+        if (response.error) {
+          console.log('ImagePickerManager Error: ', response.error);
+          return;
+        }
+
+        callback.bind(this)(response);
+      }
+    );
+  }
+
+  render() {
+    const BUTTON_SIZE = 40;
+    const button_style = {
+      height: BUTTON_SIZE,
+      borderRadius: BUTTON_SIZE / 2,
+      backgroundColor: 'lightgreen',
+      justifyContent:'center'
+    }
+    return (
+      <View style={{borderWidth:2, borderColor:'red', flex:1} }  ref='rootView'>
+        <WatermarkPreview {...this.state} />
+        <View style={{flex:1, flexDirection:'row', justifyContent:'space-between', position:'relative'}} >
+          <View style={button_style}>
+            <Text
+              onPress={()=>this.launchImageLibrary({multiple:true}, this.selectPhoto)}>  Select...  </Text>
+          </View>
+          <View style={button_style}>
+            <Text
+              onPress={()=>this.launchImageLibrary({multiple:false}, this.selectWatermark)}>  Watermark  </Text>
+          </View>
+        </View>
+      </View>
+    );
+  }
+}
+
+class WatermarkPreview extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
       translateX: 0,
       translateY: 0,
       rotate: '0deg',
-      scale: 1.0,
-      imagesource: {uri: 'https://facebook.github.io/react/img/logo_og.png'},
-      bgimage: {uri: 'https://facebook.github.io/react/img/logo_og.png'},
-      height: 100,
-      width: 100
+      scale: 1.0
     };
-    this.launchImageLibrary();
-  }
-
-  launchImageLibrary() {
-    ImagePickerManager.launchImageLibrary(options, (response) => {
-      console.log('Response = ', response);
-
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      }
-      else if (response.error) {
-        console.log('ImagePickerManager Error: ', response.error);
-      }
-      else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton);
-      }
-      else {
-        const LONG_EDGE = 250;
-        const source = {uri: response.uri, isStatic: true};
-        const ratio = response.height / response.width;
-        const h = (ratio > 1.0) ? LONG_EDGE:LONG_EDGE*ratio;
-        const w = (ratio > 1.0) ? LONG_EDGE/ratio:LONG_EDGE;
-        const height = response.isVertical ? h:w;
-        const width = response.isVertical ? w:h;
-        let { bgimage } = this.state;
-        if (response.images) {
-          console.log(response.images)
-          bgimage = {uri: response.images[1].uri, isStatic: true,
-            isVertical: response.images[1].isVertical};
-        }
-
-        this.setState(Object.assign({}, this.state, {
-          imagesource: source,
-          bgimage,
-          height,
-          width
-        }));
-        console.log(this.state)
-      }
-    });
   }
 
   onPan({ absoluteChangeX, absoluteChangeY }) {
@@ -123,7 +161,8 @@ class SimpleWatermark extends Component {
   }
 
   render() {
-    const {translateX, translateY, rotate, scale, height, width } = this.state;
+    const {height, width} = this.props.watermark;
+    const {translateX, translateY, rotate, scale} = this.state;
     const transform = [
       {translateX},
       {translateY},
@@ -132,17 +171,19 @@ class SimpleWatermark extends Component {
     ];
     return (
       <View style={styles.container}>
-        <Text> x: {this.state.translateX}</Text>
-        <Text> y: {this.state.translateY}</Text>
-        <Text> rotate: {this.state.rotate}</Text>
-        <Text> scale: {this.state.scale}</Text>
         <Image
-          source={this.state.bgimage}
-          style={(this.state.bgimage.isVertical) ?
-            styles.verticalImage:styles.horizentalImage}
+          source={this.props.images[0]}
+          style={styles.preview}
+          resizeMode='contain'
+          overflow='visible'
           >
+          <Text> x: {this.state.translateX}</Text>
+          <Text> y: {this.state.translateY}</Text>
+          <Text> rotate: {this.state.rotate}</Text>
+          <Text> scale: {this.state.scale}</Text>
+
           <PannableImage
-            source={this.state.imagesource}
+            source={this.props.watermark}
             style={{ height, width}}
             onPan={this.onPan.bind(this)}
             onScaleStart={this.onScaleStart.bind(this)}
@@ -159,12 +200,14 @@ class SimpleWatermark extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 9,
+    marginBottom: 0,
+    flexWrap:'nowrap',
+    borderWidth: 3,
+    borderColor: 'yellow'
   },
-  horizentalImage: {
+  preview: {
     flex: 1
-  },
-  verticalImage: {
   }
 });
 
