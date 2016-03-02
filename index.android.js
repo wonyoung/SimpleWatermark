@@ -14,6 +14,10 @@ import React, {
 } from 'react-native';
 
 import { pannable, rotatable, scalable } from 'react-native-gesture-recognizers';
+import {
+  MKSlider,
+  MKRadioButton
+} from 'react-native-material-kit';
 const { ImagePickerManager } = React.NativeModules;
 
 @rotatable
@@ -41,22 +45,22 @@ class SimpleWatermark extends Component {
           uri: 'https://facebook.github.io/react/img/logo_og.png',
           height: 200, width: 200
         }
-      ]
+      ],
+      opacity: 0.8
     };
   }
 
-  selectWatermark(response) {
-    const watermark = response;
-    const {images} = this.state;
-
-    this.setState({ watermark, images });
+  selectWatermark(watermark) {
+    this.setState({...this.state, watermark});
   }
 
-  selectPhoto(response) {
-    const {watermark} = this.state;
-    const images = (response.images) ? response.images:[response];
+  selectPhoto(image) {
+    const images = (image.images) ? image.images:[image];
+    this.setState({...this.state, images });
+  }
 
-    this.setState({ watermark, images });
+  onOpacityChange(opacity) {
+    this.setState({...this.state, opacity});
   }
 
   launchImageLibrary(options, callback) {
@@ -92,6 +96,8 @@ class SimpleWatermark extends Component {
     return (
       <View style={{borderWidth:2, borderColor:'red', flex:1} }  ref='rootView'>
         <WatermarkPreview {...this.state} />
+        <OpacityControl opacity={this.state.opacity} onChangeOpacity={this.onOpacityChange.bind(this)} />
+        <PositionControl />
         <View style={{flex:1, flexDirection:'row', justifyContent:'space-between', position:'relative'}} >
           <View style={button_style}>
             <Text
@@ -101,6 +107,46 @@ class SimpleWatermark extends Component {
             <Text
               onPress={()=>this.launchImageLibrary({multiple:false}, this.selectWatermark)}>  Watermark  </Text>
           </View>
+        </View>
+      </View>
+    );
+  }
+}
+
+class OpacityControl extends Component {
+  componentDidMount() {
+    this.refs.slider.value = this.props.opacity;
+  }
+
+  render() {
+    return (
+      <MKSlider style={{flex:1}} ref='slider' min={0} max={1} onChange={this.props.onChangeOpacity}/>
+    );
+  }
+}
+
+class PositionControl extends Component {
+  constructor(props) {
+    super(props);
+    this.radiogroup = new MKRadioButton.Group();
+  }
+  render() {
+    return (
+      <View style={{flex:2, flexDirection:'column'}}>
+        <View style={{flex:1, flexDirection:'row'}}>
+          <MKRadioButton checked={false} onCheckedChange={(e,i)=>{console.log(e,i)}} group={this.radiogroup}/>
+          <MKRadioButton checked={false} onCheckedChange={(e,i)=>{console.log(e,i)}} group={this.radiogroup}/>
+          <MKRadioButton checked={false} onCheckedChange={(e,i)=>{console.log(e,i)}} group={this.radiogroup}/>
+        </View>
+        <View style={{flex:1, flexDirection:'row'}}>
+          <MKRadioButton checked={false} group={this.radiogroup}/>
+          <MKRadioButton checked={false} group={this.radiogroup}/>
+          <MKRadioButton checked={false} group={this.radiogroup}/>
+        </View>
+        <View style={{flex:1, flexDirection:'row'}}>
+          <MKRadioButton checked={false} group={this.radiogroup}/>
+          <MKRadioButton checked={false} group={this.radiogroup}/>
+          <MKRadioButton checked={false} group={this.radiogroup}/>
         </View>
       </View>
     );
@@ -151,14 +197,13 @@ class WatermarkPreview extends Component {
     }));
   }
 
-  debugState() {
-    console.log(this.state);
-  }
-
-  _onLayout(l) {
-    const { layout } = l.nativeEvent;
+  _onLayout({nativeEvent: {layout}}) {
+    const prev = this.state.layout;
+    if (layout.width === prev.width && layout.height === prev.height) {
+      return;
+    }
+    console.log(layout, this.state.layout, Object.is(layout, this.state.layout));
     this.setState({...this.state, layout})
-    this.debugState();
   }
 
   imageWithAspectRatio(src) {
@@ -206,13 +251,12 @@ class WatermarkPreview extends Component {
           >
           <PannableImage
             source={watermarkSource}
-            style={{height: wHeight, width: wWidth, opacity:0.5}}
+            style={{height: wHeight, width: wWidth, opacity:this.props.opacity}}
             onPan={this.onPan.bind(this)}
             onScaleStart={this.onScaleStart.bind(this)}
             onScale={this.onScale.bind(this)}
             onRotateStart={this.onRotateStart.bind(this)}
             onRotate={this.onRotate.bind(this)}
-            onRotateEnd={this.debugState.bind(this)}
             panDecoratorStyle={{transform}} />
         </Image>
       </View>

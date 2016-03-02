@@ -4,6 +4,7 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.imagepicker.ImagePickerPackage;
+import com.github.xinthink.rnmk.ReactMaterialKitPackage;
 
 import android.content.Intent;
 
@@ -40,6 +41,7 @@ public class MainActivity extends ReactActivity {
       mImagePickerPackage = new ImagePickerPackage(this);
       return Arrays.<ReactPackage>asList(
         new MainReactPackage(),
+        new ReactMaterialKitPackage(),
         mImagePickerPackage
       );
     }

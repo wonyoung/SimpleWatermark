@@ -9,6 +9,7 @@
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "react-native": "^0.20.0",
     "react-native-gesture-recognizers": "git+https://github.com/wonyoung/react-native-gesture-recognizers.git",
-    "react-native-image-picker": "git+https://github.com/wonyoung/react-native-image-picker.git"
+    "react-native-image-picker": "git+https://github.com/wonyoung/react-native-image-picker.git",
+    "react-native-material-kit": "^0.3.0"
   }
 }
