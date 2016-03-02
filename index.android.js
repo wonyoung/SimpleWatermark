@@ -36,24 +36,17 @@ class SimpleWatermark extends Component {
         height: 200,
         width: 200
       },
-      images: [{uri: 'https://facebook.github.io/react/img/logo_og.png'}]
+      images: [
+        {
+          uri: 'https://facebook.github.io/react/img/logo_og.png',
+          height: 200, width: 200
+        }
+      ]
     };
   }
 
   selectWatermark(response) {
-    const LONG_EDGE = 250;
-    const ratio = response.height / response.width;
-    const h = (ratio > 1.0) ? LONG_EDGE:LONG_EDGE*ratio;
-    const w = (ratio > 1.0) ? LONG_EDGE/ratio:LONG_EDGE;
-    const height = response.isVertical ? h:w;
-    const width = response.isVertical ? w:h;
-
-    const watermark = {
-      uri: response.uri,
-      isStatic: true,
-      height,
-      width
-    };
+    const watermark = response;
     const {images} = this.state;
 
     this.setState({ watermark, images });
@@ -61,11 +54,9 @@ class SimpleWatermark extends Component {
 
   selectPhoto(response) {
     const {watermark} = this.state;
-    const images = (response.images) ? response.images.map((i)=>
-      ({uri: i.uri, isStatic: true})):[{uri: response.uri, isStatic:true}];
+    const images = (response.images) ? response.images:[response];
 
     this.setState({ watermark, images });
-
   }
 
   launchImageLibrary(options, callback) {
@@ -123,15 +114,19 @@ class WatermarkPreview extends Component {
       translateX: 0,
       translateY: 0,
       rotate: '0deg',
-      scale: 1.0
+      scale: 1.0,
+      layout: {
+        width: 200,
+        height: 200
+      },
     };
   }
 
   onPan({ absoluteChangeX, absoluteChangeY }) {
-    this.setState(Object.assign({}, this.state, {
+    this.setState({...this.state,
       translateX: absoluteChangeX,
       translateY: absoluteChangeY
-    }));
+    });
   }
 
   onScaleStart() {
@@ -160,8 +155,38 @@ class WatermarkPreview extends Component {
     console.log(this.state);
   }
 
+  _onLayout(l) {
+    const { layout } = l.nativeEvent;
+    this.setState({...this.state, layout})
+    this.debugState();
+  }
+
+  imageWithAspectRatio(src) {
+    const {height:layoutHeight, width:layoutWidth} = this.state.layout;
+
+    const aspectRatio = src.isVertical ? src.width/src.height:src.height/src.width;
+    const layoutAspectRatio = layoutWidth/layoutHeight;
+
+    const width = (aspectRatio > layoutAspectRatio) ? layoutWidth:layoutHeight*aspectRatio;
+    const height = (aspectRatio > layoutAspectRatio) ? layoutWidth/aspectRatio:layoutHeight;
+    const top = (layoutHeight - height) / 2;
+    const left = (layoutWidth - width) / 2;
+
+    const uri = src.uri;
+    return {
+      uri, width, height, top, left
+    };
+  }
+
   render() {
-    const {height, width} = this.props.watermark;
+    const bg = this.imageWithAspectRatio(this.props.images[0]);
+    const bgsource = {uri:bg.uri};
+    const {width, height, top, left} = bg;
+
+    const wm = this.imageWithAspectRatio(this.props.watermark);
+    const watermarkSource = {uri:wm.uri};
+    const {width:wWidth, height:wHeight} = wm;
+
     const {translateX, translateY, rotate, scale} = this.state;
     const transform = [
       {translateX},
@@ -169,22 +194,19 @@ class WatermarkPreview extends Component {
       {rotate},
       {scale}
     ];
-    return (
-      <View style={styles.container}>
-        <Image
-          source={this.props.images[0]}
-          style={styles.preview}
-          resizeMode='contain'
-          overflow='visible'
-          >
-          <Text> x: {this.state.translateX}</Text>
-          <Text> y: {this.state.translateY}</Text>
-          <Text> rotate: {this.state.rotate}</Text>
-          <Text> scale: {this.state.scale}</Text>
 
+    return (
+      <View
+        style={styles.container}
+        onLayout={this._onLayout.bind(this)}
+        >
+        <Image
+          source={bgsource}
+          style={[styles.preview, {height, width, top, left}]}
+          >
           <PannableImage
-            source={this.props.watermark}
-            style={{ height, width}}
+            source={watermarkSource}
+            style={{height: wHeight, width: wWidth, opacity:0.5}}
             onPan={this.onPan.bind(this)}
             onScaleStart={this.onScaleStart.bind(this)}
             onScale={this.onScale.bind(this)}
@@ -207,7 +229,6 @@ const styles = StyleSheet.create({
     borderColor: 'yellow'
   },
   preview: {
-    flex: 1
   }
 });
 
