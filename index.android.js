@@ -46,7 +46,8 @@ class SimpleWatermark extends Component {
           height: 200, width: 200
         }
       ],
-      opacity: 0.8
+      opacity: 0.8,
+      position: 0
     };
   }
 
@@ -59,8 +60,12 @@ class SimpleWatermark extends Component {
     this.setState({...this.state, images });
   }
 
-  onOpacityChange(opacity) {
+  _onOpacityUpdate(opacity) {
     this.setState({...this.state, opacity});
+  }
+
+  _onPositionUpdate(position) {
+    this.setState({...this.state, position});
   }
 
   launchImageLibrary(options, callback) {
@@ -95,9 +100,9 @@ class SimpleWatermark extends Component {
     }
     return (
       <View style={{borderWidth:2, borderColor:'red', flex:1} }  ref='rootView'>
-        <WatermarkPreview {...this.state} />
-        <OpacityControl opacity={this.state.opacity} onChangeOpacity={this.onOpacityChange.bind(this)} />
-        <PositionControl />
+        <WatermarkPreview onChangePosition={this._onPositionUpdate.bind(this)} {...this.state} />
+        <OpacityControl opacity={this.state.opacity} onChangeOpacity={this._onOpacityUpdate.bind(this)} />
+        <PositionControl onChangePosition={this._onPositionUpdate.bind(this)}/>
         <View style={{flex:1, flexDirection:'row', justifyContent:'space-between', position:'relative'}} >
           <View style={button_style}>
             <Text
@@ -135,6 +140,7 @@ class PositionControl extends Component {
     return ({checked}) => {
       if (checked) {
         console.log(position);
+        this.props.onChangePosition(position);
       }
     };
   }
@@ -178,6 +184,8 @@ class WatermarkPreview extends Component {
   }
 
   onPan({ absoluteChangeX, absoluteChangeY }) {
+    this.props.onChangePosition(0);
+    
     this.setState({...this.state,
       translateX: absoluteChangeX,
       translateY: absoluteChangeY
@@ -211,7 +219,6 @@ class WatermarkPreview extends Component {
     if (layout.width === prev.width && layout.height === prev.height) {
       return;
     }
-    console.log(layout, this.state.layout, Object.is(layout, this.state.layout));
     this.setState({...this.state, layout})
   }
 
@@ -241,7 +248,13 @@ class WatermarkPreview extends Component {
     const watermarkSource = {uri:wm.uri};
     const {width:wWidth, height:wHeight} = wm;
 
-    const {translateX, translateY, rotate, scale} = this.state;
+    const {rotate, scale} = this.state;
+    let {translateX, translateY} = this.state;
+    if (this.props.position === 1) {
+      translateX = 0;
+      translateY = 0;
+    }
+
     const transform = [
       {translateX},
       {translateY},
