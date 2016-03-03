@@ -9,10 +9,11 @@ import React, {
   Text,
   Image,
   View,
-  NativeModules
+  NativeModules,
+  ToastAndroid
 } from 'react-native';
 
-const { ImagePickerManager } = NativeModules;
+const { ImagePickerManager, Watermarker } = NativeModules;
 import OpacityControl from './OpacityControl';
 import PositionControl from './PositionControl';
 import WatermarkPreview from './WatermarkPreview';
@@ -76,6 +77,23 @@ class SimpleWatermark extends Component {
     );
   }
 
+  export() {
+    console.log(this.state);
+    console.log(Watermarker);
+    Watermarker.make({
+      backgroundPaths: this.state.images.map(i => i.path),
+      watermarkPath: this.state.watermark.path,
+      scale:0.5,
+      alpha:this.state.opacity,
+      angle:45,
+      left:50,
+      top:50
+    }, (e) => {
+      console.log(e);
+      ToastAndroid.show('done' + e.path, ToastAndroid.SHORT);
+    });
+  }
+
   render() {
     const BUTTON_SIZE = 40;
     const button_style = {
@@ -88,7 +106,6 @@ class SimpleWatermark extends Component {
       <View style={{borderWidth:2, borderColor:'red', flex:1} }  ref='rootView'>
         <WatermarkPreview onChangePosition={this._onPositionUpdate.bind(this)} {...this.state} />
         <OpacityControl opacity={this.state.opacity} onChangeOpacity={this._onOpacityUpdate.bind(this)} />
-        <PositionControl onChangePosition={this._onPositionUpdate.bind(this)}/>
         <View style={{flex:1, flexDirection:'row', justifyContent:'space-between', position:'relative'}} >
           <View style={button_style}>
             <Text
@@ -98,11 +115,14 @@ class SimpleWatermark extends Component {
             <Text
               onPress={()=>this.launchImageLibrary({multiple:false}, this.selectWatermark)}>  Watermark  </Text>
           </View>
+          <View style={button_style}>
+            <Text
+              onPress={()=>this.export()}>     Save     </Text>
+          </View>
         </View>
       </View>
     );
   }
 }
-
 
 AppRegistry.registerComponent('SimpleWatermark', () => SimpleWatermark);
