@@ -59,8 +59,6 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
 
   private void flattenImage(final String filename, final String backgroundImagePath, final String foregroundImagePath,
     final float scale, final float alpha, final int angle, final int left, final int top) {
-    Bitmap bg = BitmapFactory.decodeFile(backgroundImagePath);
-
     Bitmap fg = BitmapFactory.decodeFile(foregroundImagePath);
     Paint paint = new Paint();
     paint.setAlpha((int)(alpha * 255));
@@ -69,8 +67,12 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     matrix.postRotate(angle, fg.getWidth()/2, fg.getHeight()/2);
     matrix.postScale(scale, scale);
 
-    Bitmap output = bg.copy(Bitmap.Config.ARGB_8888, true);
+    Bitmap bg = BitmapFactory.decodeFile(backgroundImagePath);
+    Matrix bgMatrix = createMatrixWithExifOrientation(backgroundImagePath, bg);
+
+    Bitmap output = Bitmap.createBitmap(bg.getWidth(), bg.getHeight(), Bitmap.Config.ARGB_8888);
     Canvas canvas = new Canvas(output);
+    canvas.drawBitmap(bg, bgMatrix, null);
     canvas.drawBitmap(fg, matrix, paint);
 
     try {
