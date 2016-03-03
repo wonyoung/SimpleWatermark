@@ -36,7 +36,9 @@ class SimpleWatermark extends Component {
       opacity: 0.8,
       scale: 0.5,
       angle: 0,
-      position: 0
+      position: 0,
+      left: 0,
+      top: 0
     };
   }
 
@@ -115,7 +117,10 @@ class SimpleWatermark extends Component {
     }
     return (
       <View style={{borderWidth:2, borderColor:'red', flex:1} }  ref='rootView'>
-        <WatermarkPreview onChangePosition={this._onPositionUpdate.bind(this)} {...this.state} />
+        <WatermarkPreview
+          onChangePosition={this._onPositionUpdate.bind(this)}
+          {...this.state}
+          />
         <OpacityControl opacity={this.state.opacity} onChangeOpacity={this._onOpacityUpdate.bind(this)} />
         <ScaleControl scale={this.state.scale} onChangeScale={this._onScaleUpdate.bind(this)} />
         <AngleControl angle={this.state.angle} onChangeAngle={this._onAngleUpdate.bind(this)} />

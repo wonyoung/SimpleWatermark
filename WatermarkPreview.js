@@ -8,63 +8,15 @@ import React, {
   View
 } from 'react-native';
 
-import { pannable, rotatable, scalable } from 'react-native-gesture-recognizers';
-
-@rotatable
-@scalable
-@pannable ({ setGestureState: false })
-class PannableImage extends Component {
-  render() {
-    return (
-      <Image source={this.props.source} style={this.props.style}/>
-    );
-  }
-}
-
 export default class WatermarkPreview extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      translateX: 0,
-      translateY: 0,
-      rotate: '0deg',
-      scale: 1.0,
       layout: {
         width: 200,
         height: 200
       },
     };
-  }
-
-  onPan({ absoluteChangeX, absoluteChangeY }) {
-    this.props.onChangePosition(0);
-
-    this.setState({...this.state,
-      translateX: absoluteChangeX,
-      translateY: absoluteChangeY
-    });
-  }
-
-  onScaleStart() {
-    this.scale0 = this.state.scale;
-  }
-
-  onScale(scale) {
-    this.setState(Object.assign({}, this.state, {
-      scale: this.scale0*scale,
-    }));
-  }
-
-  onRotateStart() {
-    this.rotate0 = parseInt(this.state.rotate);
-  }
-
-  onRotate(deg) {
-    const d = (this.rotate0 - parseInt(deg) + 360) % 360;
-
-    this.setState(Object.assign({}, this.state, {
-      rotate: d+'deg',
-    }));
   }
 
   _onLayout({nativeEvent: {layout}}) {
@@ -101,13 +53,14 @@ export default class WatermarkPreview extends Component {
     const watermarkSource = {uri:wm.uri};
     const {width:wWidth, height:wHeight} = wm;
 
-    const {rotate, scale} = this.state;
-    let {translateX, translateY} = this.state;
+    let {angle: rotate, scale} = this.props;
+    let {left: translateX, top: translateY} = this.props;
     if (this.props.position === 1) {
       translateX = 0;
       translateY = 0;
     }
 
+    rotate = rotate+'deg';
     const transform = [
       {translateX},
       {translateY},
@@ -124,15 +77,17 @@ export default class WatermarkPreview extends Component {
           source={bgsource}
           style={[styles.preview, {height, width, top, left}]}
           >
-          <PannableImage
+          <Image
             source={watermarkSource}
-            style={{height: wHeight, width: wWidth, opacity:this.props.opacity}}
-            onPan={this.onPan.bind(this)}
-            onScaleStart={this.onScaleStart.bind(this)}
-            onScale={this.onScale.bind(this)}
-            onRotateStart={this.onRotateStart.bind(this)}
-            onRotate={this.onRotate.bind(this)}
-            panDecoratorStyle={{transform}} />
+            style={
+              [{
+                height: wHeight,
+                width: wWidth,
+                opacity:this.props.opacity,
+                transform
+              }]
+            }
+            />
         </Image>
       </View>
     );

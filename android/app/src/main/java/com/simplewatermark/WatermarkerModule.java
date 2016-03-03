@@ -63,12 +63,18 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     Paint paint = new Paint();
     paint.setAlpha((int)(alpha * 255));
 
+    Bitmap bg = BitmapFactory.decodeFile(backgroundImagePath);
+    Matrix bgMatrix = createMatrixWithExifOrientation(backgroundImagePath, bg);
+
     Matrix matrix = createMatrixWithExifOrientation(foregroundImagePath, fg);
     matrix.postRotate(angle, fg.getWidth()/2, fg.getHeight()/2);
     matrix.postScale(scale, scale);
 
-    Bitmap bg = BitmapFactory.decodeFile(backgroundImagePath);
-    Matrix bgMatrix = createMatrixWithExifOrientation(backgroundImagePath, bg);
+    float scaleWidth = 1.0f * bg.getWidth()/fg.getWidth();
+    float scaleHeight = 1.0f * bg.getHeight()/fg.getHeight();
+    float minScale = scaleWidth;//(scaleWidth < scaleHeight) ? scaleWidth:scaleHeight;
+
+    matrix.postScale(minScale, minScale);
 
     Bitmap output = Bitmap.createBitmap(bg.getWidth(), bg.getHeight(), Bitmap.Config.ARGB_8888);
     Canvas canvas = new Canvas(output);
