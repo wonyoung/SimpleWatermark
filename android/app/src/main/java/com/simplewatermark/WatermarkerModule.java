@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.media.ExifInterface;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -59,11 +60,12 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
   private void flattenImage(final String filename, final String backgroundImagePath, final String foregroundImagePath,
     final float scale, final float alpha, final int angle, final int left, final int top) {
     Bitmap bg = BitmapFactory.decodeFile(backgroundImagePath);
+
     Bitmap fg = BitmapFactory.decodeFile(foregroundImagePath);
     Paint paint = new Paint();
     paint.setAlpha((int)(alpha * 255));
 
-    Matrix matrix = new Matrix();
+    Matrix matrix = createMatrixWithExifOrientation(foregroundImagePath, fg);
     matrix.postRotate(angle, fg.getWidth()/2, fg.getHeight()/2);
     matrix.postScale(scale, scale);
 
@@ -81,5 +83,47 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     bg.recycle();
     fg.recycle();
     output.recycle();
+  }
+
+  private Matrix createMatrixWithExifOrientation(final String filename, final Bitmap b) {
+    Matrix m = new Matrix();
+    int orientation = 0;
+    try {
+      ExifInterface exif = new ExifInterface(filename);
+      orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+    } catch (Exception e) {
+
+    }
+
+    switch(orientation) {
+      case 1:
+        break;
+      case 2:
+        m.postScale(-1, 1);
+        break;
+      case 3:
+        m.setRotate(180, b.getWidth()/2, b.getHeight()/2);
+        break;
+      case 4:
+        m.postScale(1, -1);
+        break;
+      case 5:
+        m.postRotate(90);
+        m.postScale(-1, 1);
+        break;
+      case 6:
+        m.postRotate(90);
+        break;
+      case 7:
+        m.postScale(-1, 1);
+        m.postRotate(90);
+        break;
+      case 8:
+        m.postRotate(270);
+        break;
+      default:
+        break;
+    }
+    return m;
   }
 }

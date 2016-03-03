@@ -14,7 +14,7 @@ import React, {
 } from 'react-native';
 
 const { ImagePickerManager, Watermarker } = NativeModules;
-import OpacityControl from './OpacityControl';
+import { OpacityControl, ScaleControl, AngleControl } from './Sliders';
 import PositionControl from './PositionControl';
 import WatermarkPreview from './WatermarkPreview';
 
@@ -34,6 +34,8 @@ class SimpleWatermark extends Component {
         }
       ],
       opacity: 0.8,
+      scale: 0.5,
+      angle: 0,
       position: 0
     };
   }
@@ -49,6 +51,15 @@ class SimpleWatermark extends Component {
 
   _onOpacityUpdate(opacity) {
     this.setState({...this.state, opacity});
+  }
+
+  _onScaleUpdate(scale) {
+    this.setState({...this.state, scale});
+  }
+
+  _onAngleUpdate(fAngle) {
+    const angle = parseInt(fAngle);
+    this.setState({...this.state, angle});
   }
 
   _onPositionUpdate(position) {
@@ -83,9 +94,9 @@ class SimpleWatermark extends Component {
     Watermarker.make({
       backgroundPaths: this.state.images.map(i => i.path),
       watermarkPath: this.state.watermark.path,
-      scale:0.5,
+      scale:this.state.scale,
       alpha:this.state.opacity,
-      angle:45,
+      angle:this.state.angle,
       left:50,
       top:50
     }, (e) => {
@@ -106,6 +117,8 @@ class SimpleWatermark extends Component {
       <View style={{borderWidth:2, borderColor:'red', flex:1} }  ref='rootView'>
         <WatermarkPreview onChangePosition={this._onPositionUpdate.bind(this)} {...this.state} />
         <OpacityControl opacity={this.state.opacity} onChangeOpacity={this._onOpacityUpdate.bind(this)} />
+        <ScaleControl scale={this.state.scale} onChangeScale={this._onScaleUpdate.bind(this)} />
+        <AngleControl angle={this.state.angle} onChangeAngle={this._onAngleUpdate.bind(this)} />
         <View style={{flex:1, flexDirection:'row', justifyContent:'space-between', position:'relative'}} >
           <View style={button_style}>
             <Text
