@@ -1,7 +1,9 @@
 'use strict';
 import React, {
   Component,
-  StyleSheet
+  StyleSheet,
+  View,
+  Text
 } from 'react-native';
 
 import { MKSlider } from 'react-native-material-kit';
@@ -26,12 +28,15 @@ export default class Slider extends Component {
 export class OpacityControl extends Component {
   render() {
     return (
-      <Slider
-        style={styles.slider}
-        value={this.props.opacity}
-        min={0}
-        max={1}
-        onChange={this.props.onChangeOpacity}/>
+      <View style={{flexDirection:'row'}}>
+        <Text style={styles.values}>{this.props.opacity.toFixed(2)}</Text>
+        <Slider
+          style={styles.slider}
+          value={this.props.opacity}
+          min={0}
+          max={1}
+          onChange={this.props.onChangeOpacity}/>
+      </View>
     );
   }
 }
@@ -39,12 +44,15 @@ export class OpacityControl extends Component {
 export class ScaleControl extends Component {
   render() {
     return (
-      <Slider
-        style={styles.slider}
-        value={this.props.scale}
-        min={0}
-        max={1}
-        onChange={this.props.onChangeScale}/>
+      <View style={{flexDirection:'row'}}>
+        <Text style={styles.values}>{this.props.scale.toFixed(2)}</Text>
+        <Slider
+          style={styles.slider}
+          value={this.props.scale}
+          min={0}
+          max={1}
+          onChange={this.props.onChangeScale}/>
+      </View>
     );
   }
 }
@@ -52,12 +60,15 @@ export class ScaleControl extends Component {
 export class AngleControl extends Component {
   render() {
     return (
-      <Slider
-        style={styles.slider}
-        value={this.props.angle}
-        min={0}
-        max={360}
-        onChange={this.props.onChangeAngle}/>
+      <View style={{flexDirection:'row'}}>
+        <Text style={styles.values}>{this.props.angle}° </Text>
+        <Slider
+          style={styles.slider}
+          value={this.props.angle}
+          min={0}
+          max={360}
+          onChange={this.props.onChangeAngle}/>
+      </View>
     );
   }
 }
@@ -65,18 +76,26 @@ export class AngleControl extends Component {
 export class PaddingControl extends Component {
   render() {
     return (
-      <Slider
-        style={styles.slider}
-        value={this.props.padding}
-        min={0}
-        max={0.5}
-        onChange={this.props.onChangePadding}/>
+      <View style={{flexDirection:'row'}}>
+        <Text style={styles.values}>{this.props.padding}</Text>
+        <Slider
+          style={styles.slider}
+          value={this.props.padding}
+          min={0}
+          max={0.5}
+          onChange={this.props.onChangePadding}/>
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
   slider: {
-    flex: 1
+    flex: 9
+  },
+  values: {
+    flex: 1,
+    alignSelf: 'center',
+    textAlign: 'right'
   }
 });
