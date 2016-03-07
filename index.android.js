@@ -10,69 +10,76 @@ import React, {
   Image,
   View,
   NativeModules,
-  ToastAndroid
+  ToastAndroid,
+  DeviceEventEmitter
 } from 'react-native';
+
+import Subscribable from 'Subscribable';
 
 const { ImagePickerManager, Watermarker } = NativeModules;
 import { OpacityControl, ScaleControl, AngleControl, PaddingControl } from './Sliders';
 import PositionControl from './PositionControl';
 import WatermarkPreview from './WatermarkPreview';
 
-class SimpleWatermark extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      watermark: {
+const SimpleWatermark = React.createClass({
+  getInitialState: () => ({
+    watermark: {
+      uri: 'https://facebook.github.io/react/img/logo_og.png',
+      height: 200,
+      width: 200
+    },
+    images: [
+      {
         uri: 'https://facebook.github.io/react/img/logo_og.png',
-        height: 200,
-        width: 200
-      },
-      images: [
-        {
-          uri: 'https://facebook.github.io/react/img/logo_og.png',
-          height: 200, width: 200
-        }
-      ],
-      opacity: 0.8,
-      scale: 0.5,
-      angle: 0,
-      position: 0,
-      padding: 0,
-      left: 0,
-      top: 0
-    };
-  }
+        height: 200, width: 200
+      }
+    ],
+    opacity: 0.8,
+    scale: 0.5,
+    angle: 0,
+    position: 0,
+    padding: 0,
+    left: 0,
+    top: 0
+  }),
 
-  selectWatermark(watermark) {
+  mixins: [Subscribable.Mixin],
+
+  componentDidMount: function() {
+    this.addListenerOn(DeviceEventEmitter, 'watermarkprogress', this.showProgress);
+  },
+
+  selectWatermark: function(watermark) {
     this.setState({...this.state, watermark});
-  }
+  },
 
-  selectPhoto(image) {
+  selectPhoto: function(image) {
     const images = (image.images) ? image.images:[image];
     this.setState({...this.state, images });
-  }
+  },
 
-  _onOpacityUpdate(opacity) {
+  _onOpacityUpdate: function(opacity) {
     this.setState({...this.state, opacity});
-  }
+  },
 
-  _onScaleUpdate(scale) {
+  _onScaleUpdate: function(scale) {
     this.setState({...this.state, scale});
-  }
+  },
 
-  _onAngleUpdate(fAngle) {
+  _onAngleUpdate: function(fAngle) {
     const angle = parseInt(fAngle);
     this.setState({...this.state, angle});
-  }
+  },
 
-  _onPositionUpdate(position) {
+  _onPositionUpdate: function(position) {
     this.setState({...this.state, position});
-  }
+  },
 
-  _onPaddingUpdate(padding) {
+  _onPaddingUpdate: function(padding) {
     this.setState({...this.state, padding})
-  }
-  launchImageLibrary(options, callback) {
+  },
+
+  launchImageLibrary: function(options, callback) {
     const defOption = {
       mediaType: 'photo',
       videoQuality: 'high',
@@ -89,12 +96,16 @@ class SimpleWatermark extends Component {
           return;
         }
 
-        callback.bind(this)(response);
+        callback(response);
       }
     );
-  }
+  },
 
-  export() {
+  showProgress: function(a) {
+    console.log('Progress', a);
+  },
+
+  export: function() {
     console.log(this.state);
     const {
       watermark,
@@ -108,11 +119,11 @@ class SimpleWatermark extends Component {
       ...props
     }, (e) => {
       console.log(e);
-      ToastAndroid.show('done', ToastAndroid.SHORT);
+      ToastAndroid.show('Image saved.', ToastAndroid.SHORT);
     });
-  }
+  },
 
-  render() {
+  render: function() {
     const BUTTON_SIZE = 40;
     const button_style = {
       height: BUTTON_SIZE,
@@ -123,18 +134,18 @@ class SimpleWatermark extends Component {
     return (
       <View style={{borderWidth:2, borderColor:'red', flex:1} }  ref='rootView'>
         <WatermarkPreview
-          onChangePosition={this._onPositionUpdate.bind(this)}
+          onChangePosition={this._onPositionUpdate}
           {...this.state}
           />
-        <OpacityControl opacity={this.state.opacity} onChangeOpacity={this._onOpacityUpdate.bind(this)} />
-        <ScaleControl scale={this.state.scale} onChangeScale={this._onScaleUpdate.bind(this)} />
-        <AngleControl angle={this.state.angle} onChangeAngle={this._onAngleUpdate.bind(this)} />
+        <OpacityControl opacity={this.state.opacity} onChangeOpacity={this._onOpacityUpdate} />
+        <ScaleControl scale={this.state.scale} onChangeScale={this._onScaleUpdate} />
+        <AngleControl angle={this.state.angle} onChangeAngle={this._onAngleUpdate} />
         <View style={{flexDirection:'row'}} >
           <View style={{flex:2}} >
-            <PositionControl onChangePosition={this._onPositionUpdate.bind(this)} />
+            <PositionControl onChangePosition={this._onPositionUpdate} />
           </View>
           <View style={{flex:8}} >
-            <PaddingControl padding={this.state.padding} onChangePadding={this._onPaddingUpdate.bind(this)} />
+            <PaddingControl padding={this.state.padding} onChangePadding={this._onPaddingUpdate} />
           </View>
         </View>
         <View style={{flex:1, flexDirection:'row', justifyContent:'space-between', position:'relative'}} >
@@ -154,6 +165,6 @@ class SimpleWatermark extends Component {
       </View>
     );
   }
-}
+});
 
 AppRegistry.registerComponent('SimpleWatermark', () => SimpleWatermark);

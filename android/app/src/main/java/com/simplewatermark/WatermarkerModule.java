@@ -16,6 +16,8 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,9 +26,11 @@ import java.io.FileOutputStream;
 import java.lang.String;
 
 public class WatermarkerModule extends ReactContextBaseJavaModule {
+  private ReactContext context;
 
   public WatermarkerModule(ReactApplicationContext reactContext) {
     super(reactContext);
+    this.context = reactContext;
   }
 
   @Override
@@ -53,10 +57,20 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
       String background = backgrounds.getString(i);
       String filename = path + "/" + (new File(background)).getName() + ".jpg";
       flattenImage(filename, background, watermark, scale, alpha, angle, left, top, position, padding);
+      WritableMap map = Arguments.createMap();
+      map.putInt("progress", i + 1);
+      map.putInt("total", backgrounds.size());
+      sendEvent(this.context, "watermarkprogress", map);
     }
     WritableMap response = Arguments.createMap();
 
     callback.invoke(response);
+  }
+
+  private void sendEvent(ReactContext reactContext, String eventName, WritableMap params) {
+    reactContext
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+      .emit(eventName, params);
   }
 
   private void flattenImage(final String filename,
