@@ -27,8 +27,8 @@ export default class WatermarkPreview extends Component {
     this.setState({...this.state, layout})
   }
 
-  imageWithAspectRatio(src) {
-    const {height:layoutHeight, width:layoutWidth} = this.state.layout;
+  imageWithAspectRatio(src, layout) {
+    const {height:layoutHeight, width:layoutWidth} = layout;
 
     const aspectRatio = src.isVertical ? src.width/src.height:src.height/src.width;
     const layoutAspectRatio = layoutWidth/layoutHeight;
@@ -38,35 +38,77 @@ export default class WatermarkPreview extends Component {
     const top = (layoutHeight - height) / 2;
     const left = (layoutWidth - width) / 2;
 
-    const uri = src.uri;
+    const { uri } = src;
     return {
       uri, width, height, top, left
     };
   }
 
   render() {
-    const bg = this.imageWithAspectRatio(this.props.images[0]);
+    const bg = this.imageWithAspectRatio(this.props.images[0], this.state.layout);
     const bgsource = {uri:bg.uri};
     const {width, height, top, left} = bg;
 
-    const wm = this.imageWithAspectRatio(this.props.watermark);
+    const wm = this.imageWithAspectRatio(this.props.watermark, bg);
     const watermarkSource = {uri:wm.uri};
-    const {width:wWidth, height:wHeight} = wm;
-
-    let {angle: rotate, scale} = this.props;
+    let {width:wWidth, height:wHeight} = wm;
+    let {angle: rotate, scale, position, padding} = this.props;
     let {left: translateX, top: translateY} = this.props;
-    if (this.props.position === 1) {
-      translateX = 0;
-      translateY = 0;
-    }
 
+    wWidth = wWidth * scale;
+    wHeight = wHeight * scale;
+    const wDiff = width - wWidth;
+    const hDiff = height - wHeight;
+    switch(position) {
+      case 1:
+        translateX = 0 + padding*wDiff;
+        translateY = 0 + padding*hDiff;
+        break;
+      case 2:
+        translateX = wDiff / 2;
+        translateY = 0 + padding*hDiff;
+        break;
+      case 3:
+        translateX = wDiff - padding*wDiff;
+        translateY = 0 + padding*hDiff;
+        break;
+      case 4:
+        translateX = 0 + padding*wDiff;
+        translateY = hDiff / 2;
+        break;
+      case 5:
+        translateX = wDiff / 2;
+        translateY = hDiff / 2;
+        break;
+      case 6:
+        translateX = wDiff - padding*wDiff;
+        translateY = hDiff / 2;
+        break;
+      case 7:
+        translateX = 0 + padding*hDiff;
+        translateY = hDiff - padding*hDiff;
+        break;
+      case 8:
+        translateX = wDiff / 2;
+        translateY = hDiff - padding*hDiff;
+        break;
+      case 9:
+        translateX = wDiff - padding*wDiff;
+        translateY = hDiff - padding*hDiff;
+        break;
+    }
     rotate = rotate+'deg';
     const transform = [
-      {translateX},
-      {translateY},
       {rotate},
-      {scale}
     ];
+    const watermarkStyle = {
+      height: wHeight,
+      width: wWidth,
+      top: translateY,
+      left: translateX,
+      opacity: this.props.opacity,
+      transform
+    };
 
     return (
       <View
@@ -79,14 +121,7 @@ export default class WatermarkPreview extends Component {
           >
           <Image
             source={watermarkSource}
-            style={
-              [{
-                height: wHeight,
-                width: wWidth,
-                opacity:this.props.opacity,
-                transform
-              }]
-            }
+            style={[watermarkStyle]}
             />
         </Image>
       </View>

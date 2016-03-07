@@ -14,7 +14,7 @@ import React, {
 } from 'react-native';
 
 const { ImagePickerManager, Watermarker } = NativeModules;
-import { OpacityControl, ScaleControl, AngleControl } from './Sliders';
+import { OpacityControl, ScaleControl, AngleControl, PaddingControl } from './Sliders';
 import PositionControl from './PositionControl';
 import WatermarkPreview from './WatermarkPreview';
 
@@ -37,6 +37,7 @@ class SimpleWatermark extends Component {
       scale: 0.5,
       angle: 0,
       position: 0,
+      padding: 0,
       left: 0,
       top: 0
     };
@@ -68,6 +69,9 @@ class SimpleWatermark extends Component {
     this.setState({...this.state, position});
   }
 
+  _onPaddingUpdate(padding) {
+    this.setState({...this.state, padding})
+  }
   launchImageLibrary(options, callback) {
     const defOption = {
       mediaType: 'photo',
@@ -92,18 +96,19 @@ class SimpleWatermark extends Component {
 
   export() {
     console.log(this.state);
-    console.log(Watermarker);
+    const {
+      watermark,
+      images,
+      ...props
+    } = this.state;
+
     Watermarker.make({
-      backgroundPaths: this.state.images.map(i => i.path),
-      watermarkPath: this.state.watermark.path,
-      scale:this.state.scale,
-      alpha:this.state.opacity,
-      angle:this.state.angle,
-      left:50,
-      top:50
+      backgroundPaths: images.map(i => i.path),
+      watermarkPath: watermark.path,
+      ...props
     }, (e) => {
       console.log(e);
-      ToastAndroid.show('done' + e.path, ToastAndroid.SHORT);
+      ToastAndroid.show('done', ToastAndroid.SHORT);
     });
   }
 
@@ -124,6 +129,8 @@ class SimpleWatermark extends Component {
         <OpacityControl opacity={this.state.opacity} onChangeOpacity={this._onOpacityUpdate.bind(this)} />
         <ScaleControl scale={this.state.scale} onChangeScale={this._onScaleUpdate.bind(this)} />
         <AngleControl angle={this.state.angle} onChangeAngle={this._onAngleUpdate.bind(this)} />
+        <PositionControl onChangePosition={this._onPositionUpdate.bind(this)} />
+        <PaddingControl padding={this.state.padding} onChangePadding={this._onPaddingUpdate.bind(this)} />
         <View style={{flex:1, flexDirection:'row', justifyContent:'space-between', position:'relative'}} >
           <View style={button_style}>
             <Text

@@ -61,6 +61,20 @@ export class AngleControl extends Component {
     );
   }
 }
+
+export class PaddingControl extends Component {
+  render() {
+    return (
+      <Slider
+        style={styles.slider}
+        value={this.props.padding}
+        min={0}
+        max={0.5}
+        onChange={this.props.onChangePadding}/>
+    );
+  }
+}
+
 const styles = StyleSheet.create({
   slider: {
     flex: 1

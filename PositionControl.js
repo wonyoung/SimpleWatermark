@@ -1,45 +1,69 @@
 'use strict';
 import React, {
   Component,
-  View
+  View,
+  TouchableWithoutFeedback,
+  Text,
+  StyleSheet
 } from 'react-native';
 
-import { MKRadioButton } from 'react-native-material-kit';
+class RButton extends Component {
+  render() {
+    return (
+      <TouchableWithoutFeedback onPress={this.props.onPress} >
+        <Text style={(this.props.checked ? styles.checked:styles.unchecked)}>    </Text>
+      </TouchableWithoutFeedback>
+    );
+  }
+}
 
 export default class PositionControl extends Component {
   constructor(props) {
     super(props);
-    this.radiogroup = new MKRadioButton.Group();
+    this.state = {
+      checked: 0
+    }
   }
 
-  onChecked(position) {
-    return ({checked}) => {
-      if (checked) {
-        console.log(position);
-        this.props.onChangePosition(position);
-      }
-    };
+  _onPress(position) {
+    return (() => {
+      this.setState({checked:position});
+      this.props.onChangePosition(position);
+    });
   }
 
   render() {
+    let check = new Array(9).fill(false);
+    if (this.state.checked > 0) {
+      check[this.state.checked-1] = true;
+    }
     return (
       <View style={{flex:2, flexDirection:'column'}}>
-        <View style={{flex:1, flexDirection:'row'}}>
-          <MKRadioButton checked={false} onCheckedChange={this.onChecked(1)} group={this.radiogroup}/>
-          <MKRadioButton checked={false} onCheckedChange={this.onChecked(2)} group={this.radiogroup}/>
-          <MKRadioButton checked={false} onCheckedChange={this.onChecked(3)} group={this.radiogroup}/>
+        <View style={{flexDirection:'row'}}>
+          <RButton checked={check[0]} onPress={this._onPress(1)} />
+          <RButton checked={check[1]} onPress={this._onPress(2)} />
+          <RButton checked={check[2]} onPress={this._onPress(3)} />
         </View>
-        <View style={{flex:1, flexDirection:'row'}}>
-          <MKRadioButton checked={false} onCheckedChange={this.onChecked(4)} group={this.radiogroup}/>
-          <MKRadioButton checked={false} onCheckedChange={this.onChecked(5)} group={this.radiogroup}/>
-          <MKRadioButton checked={false} onCheckedChange={this.onChecked(6)} group={this.radiogroup}/>
+        <View style={{flexDirection:'row'}}>
+          <RButton checked={check[3]} onPress={this._onPress(4)} />
+          <RButton checked={check[4]} onPress={this._onPress(5)} />
+          <RButton checked={check[5]} onPress={this._onPress(6)} />
         </View>
-        <View style={{flex:1, flexDirection:'row'}}>
-          <MKRadioButton checked={false} onCheckedChange={this.onChecked(7)} group={this.radiogroup}/>
-          <MKRadioButton checked={false} onCheckedChange={this.onChecked(8)} group={this.radiogroup}/>
-          <MKRadioButton checked={false} onCheckedChange={this.onChecked(9)} group={this.radiogroup}/>
+        <View style={{flexDirection:'row'}}>
+          <RButton checked={check[6]} onPress={this._onPress(7)} />
+          <RButton checked={check[7]} onPress={this._onPress(8)} />
+          <RButton checked={check[8]} onPress={this._onPress(9)} />
         </View>
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  checked: {
+    backgroundColor: 'black'
+  },
+  unchecked: {
+    backgroundColor: 'white'
+  }
+})
