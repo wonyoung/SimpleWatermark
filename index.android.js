@@ -129,8 +129,14 @@ class SimpleWatermark extends Component {
         <OpacityControl opacity={this.state.opacity} onChangeOpacity={this._onOpacityUpdate.bind(this)} />
         <ScaleControl scale={this.state.scale} onChangeScale={this._onScaleUpdate.bind(this)} />
         <AngleControl angle={this.state.angle} onChangeAngle={this._onAngleUpdate.bind(this)} />
-        <PositionControl onChangePosition={this._onPositionUpdate.bind(this)} />
-        <PaddingControl padding={this.state.padding} onChangePadding={this._onPaddingUpdate.bind(this)} />
+        <View style={{flexDirection:'row'}} >
+          <View style={{flex:2}} >
+            <PositionControl onChangePosition={this._onPositionUpdate.bind(this)} />
+          </View>
+          <View style={{flex:8}} >
+            <PaddingControl padding={this.state.padding} onChangePadding={this._onPaddingUpdate.bind(this)} />
+          </View>
+        </View>
         <View style={{flex:1, flexDirection:'row', justifyContent:'space-between', position:'relative'}} >
           <View style={button_style}>
             <Text
