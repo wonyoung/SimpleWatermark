@@ -77,7 +77,7 @@ export class PaddingControl extends Component {
   render() {
     return (
       <View style={{flexDirection:'row'}}>
-        <Text style={styles.values}>{this.props.padding}</Text>
+        <Text style={styles.values}>{this.props.padding.toFixed(2)}</Text>
         <Slider
           style={styles.slider}
           value={this.props.padding}
