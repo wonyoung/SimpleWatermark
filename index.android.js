@@ -16,24 +16,42 @@ import React, {
 
 import Subscribable from 'Subscribable';
 
-const { ImagePickerManager, Watermarker } = NativeModules;
+const { ImagePickerManager, Watermarker, ImagePicker } = NativeModules;
 import { OpacityControl, ScaleControl, AngleControl, PaddingControl } from './Sliders';
 import PositionControl from './PositionControl';
 import WatermarkPreview from './WatermarkPreview';
 
+const testimages = {
+  images: [
+    {
+      height: 1200,
+      isVertical: true,
+      path: "/data/user/0/com.simplewatermark/cache/photo-image:11",
+      uri: "file:///data/user/0/com.simplewatermark/cache/photo-image%3A11",
+      width: 1600
+    },
+    {
+      height: 1424,
+      isVertical: true,
+      path: "/data/user/0/com.simplewatermark/cache/photo-image:12",
+      uri: "file://"+"/storage/emulated/0/DCIM/mountain-2.jpg",
+      width: 2144,
+    }
+  ],
+  watermark: {
+    height: 512,
+    isVertical: true,
+    path: "/storage/emulated/0/DCIM/624dc72b6deef6abddf29031c1ac7224.png",
+    uri: "file://" + "/storage/emulated/0/DCIM/624dc72b6deef6abddf29031c1ac7224.png",
+  //  uri: "content://media/external/images/media/10",
+    width: 512
+  }
+};
+
 const SimpleWatermark = React.createClass({
   getInitialState: () => ({
-    watermark: {
-      uri: 'https://facebook.github.io/react/img/logo_og.png',
-      height: 200,
-      width: 200
-    },
-    images: [
-      {
-        uri: 'https://facebook.github.io/react/img/logo_og.png',
-        height: 200, width: 200
-      }
-    ],
+    watermark: testimages.watermark,
+    images: testimages.images,
     opacity: 0.8,
     scale: 0.5,
     angle: 0,
@@ -121,6 +139,16 @@ const SimpleWatermark = React.createClass({
       console.log(e);
       ToastAndroid.show('Image saved.', ToastAndroid.SHORT);
     });
+  },
+
+  launchPicker: async function() {
+    try {
+      var k = await ImagePicker.launch(true);
+
+      console.log(k);
+    } catch (e) {
+      console.error(e);
+    }
   },
 
   render: function() {

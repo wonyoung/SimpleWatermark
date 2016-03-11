@@ -45,13 +45,17 @@ public class MainActivity extends ReactActivity {
     @Override
     protected List<ReactPackage> getPackages() {
       mImagePickerPackage = new ImagePickerPackage(this);
+
       return Arrays.<ReactPackage>asList(
         new MainReactPackage(),
         new ReactMaterialKitPackage(),
         new ReactPackage() {
           @Override
           public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-            return Arrays.<NativeModule>asList(new WatermarkerModule(reactContext));
+            return Arrays.<NativeModule>asList(
+              new WatermarkerModule(reactContext),
+              new ImagePickerModule(reactContext)
+            );
           }
 
           @Override
