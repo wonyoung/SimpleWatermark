@@ -2,6 +2,8 @@ package com.simplewatermark;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.ClipData;
+import android.content.ClipData.Item;
 import android.content.ActivityNotFoundException;
 import android.net.Uri;
 
@@ -11,6 +13,8 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.WritableArray;
 
 import java.lang.String;
 
@@ -74,13 +78,23 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
       mPickerPromise.reject(E_PICKER_CANCELLED, "Image picker was cancelled");
     }
     else if (resultCode == Activity.RESULT_OK) {
-      Uri uri = intent.getData();
-
-      if (uri == null) {
-        mPickerPromise.reject(E_NO_IMAGE_DATA_FOUND, "No image data found");
+      WritableArray images = Arguments.createArray();
+      ClipData clip = intent.getClipData();
+      if (clip != null) {
+        for (int i = 0; i < clip.getItemCount(); i++) {
+          images.pushString(clip.getItemAt(i).getUri().toString());
+        }
+        mPickerPromise.resolve(images);
       }
       else {
-        mPickerPromise.resolve(uri.toString());
+        Uri uri = intent.getData();
+        if (uri != null){
+          images.pushString(uri.toString());
+          mPickerPromise.resolve(images);
+        }
+        else {
+          mPickerPromise.reject(E_NO_IMAGE_DATA_FOUND, "No image data found");
+        }
       }
     }
     mPickerPromise = null;
