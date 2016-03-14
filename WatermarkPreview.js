@@ -29,7 +29,7 @@ export default class WatermarkPreview extends Component {
 
   imageWithAspectRatio(src, layout) {
     const {height:layoutHeight, width:layoutWidth} = layout;
-
+src.isVertical = true;
     const aspectRatio = src.isVertical ? src.width/src.height:src.height/src.width;
     const layoutAspectRatio = layoutWidth/layoutHeight;
 

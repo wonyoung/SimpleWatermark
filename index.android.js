@@ -25,14 +25,12 @@ const testimages = {
   images: [
     {
       height: 1200,
-      isVertical: true,
       path: "/data/user/0/com.simplewatermark/cache/photo-image:11",
       uri: "file:///data/user/0/com.simplewatermark/cache/photo-image%3A11",
       width: 1600
     },
     {
       height: 1424,
-      isVertical: true,
       path: "/data/user/0/com.simplewatermark/cache/photo-image:12",
       uri: "file://"+"/storage/emulated/0/DCIM/mountain-2.jpg",
       width: 2144,
@@ -40,7 +38,6 @@ const testimages = {
   ],
   watermark: {
     height: 512,
-    isVertical: true,
     path: "/storage/emulated/0/DCIM/624dc72b6deef6abddf29031c1ac7224.png",
     uri: "file://" + "/storage/emulated/0/DCIM/624dc72b6deef6abddf29031c1ac7224.png",
   //  uri: "content://media/external/images/media/10",
@@ -67,15 +64,6 @@ const SimpleWatermark = React.createClass({
     this.addListenerOn(DeviceEventEmitter, 'watermarkprogress', this.showProgress);
   },
 
-  selectWatermark: function(watermark) {
-    this.setState({...this.state, watermark});
-  },
-
-  selectPhoto: function(image) {
-    const images = (image.images) ? image.images:[image];
-    this.setState({...this.state, images });
-  },
-
   _onOpacityUpdate: function(opacity) {
     this.setState({...this.state, opacity});
   },
@@ -97,28 +85,6 @@ const SimpleWatermark = React.createClass({
     this.setState({...this.state, padding})
   },
 
-  launchImageLibrary: function(options, callback) {
-    const defOption = {
-      mediaType: 'photo',
-      videoQuality: 'high',
-      noData: true,
-      multiple: true
-    };
-    ImagePickerManager.launchImageLibrary(Object.assign({}, defOption, options),
-      (response) => {
-        if (response.didCancel) {
-          return;
-        }
-        if (response.error) {
-          console.log('ImagePickerManager Error: ', response.error);
-          return;
-        }
-
-        callback(response);
-      }
-    );
-  },
-
   showProgress: function(a) {
     console.log('Progress', a);
   },
@@ -132,8 +98,8 @@ const SimpleWatermark = React.createClass({
     } = this.state;
 
     Watermarker.make({
-      backgroundPaths: images.map(i => i.path),
-      watermarkPath: watermark.path,
+      images: images.map(i => i.uri),
+      watermark: watermark.uri,
       ...props
     }, (e) => {
       console.log(e);
@@ -141,11 +107,21 @@ const SimpleWatermark = React.createClass({
     });
   },
 
-  launchPicker: async function() {
+  launchImagePicker: async function() {
     try {
-      var k = await ImagePicker.launch(true);
+      var images = await ImagePicker.launch(true);
 
-      console.log(k);
+      this.setState({...this.state, images })
+    } catch (e) {
+      console.error(e);
+    }
+  },
+
+  launchWatermarkPicker: async function() {
+    try {
+      var [watermark,] = await ImagePicker.launch(false);
+
+      this.setState({...this.state, watermark});
     } catch (e) {
       console.error(e);
     }
@@ -159,6 +135,7 @@ const SimpleWatermark = React.createClass({
       backgroundColor: 'lightgreen',
       justifyContent:'center'
     }
+
     return (
       <View style={{borderWidth:2, borderColor:'red', flex:1} }  ref='rootView'>
         <WatermarkPreview
@@ -179,11 +156,11 @@ const SimpleWatermark = React.createClass({
         <View style={{flex:1, flexDirection:'row', justifyContent:'space-between', position:'relative'}} >
           <View style={button_style}>
             <Text
-              onPress={()=>this.launchImageLibrary({multiple:true}, this.selectPhoto)}>  Select...  </Text>
+              onPress={()=>this.launchImagePicker()}>  Select...  </Text>
           </View>
           <View style={button_style}>
             <Text
-              onPress={()=>this.launchImageLibrary({multiple:false}, this.selectWatermark)}>  Watermark  </Text>
+              onPress={()=>this.launchWatermarkPicker()}>  Watermark  </Text>
           </View>
           <View style={button_style}>
             <Text

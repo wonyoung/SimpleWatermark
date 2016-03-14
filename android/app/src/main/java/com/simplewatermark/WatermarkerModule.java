@@ -8,6 +8,9 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.media.ExifInterface;
 
+import android.net.Uri;
+import android.app.Activity;
+
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -21,6 +24,8 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.lang.String;
@@ -40,8 +45,8 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void make(final ReadableMap options, final Callback callback) {
-    ReadableArray backgrounds = options.getArray("backgroundPaths");
-    String watermark = options.getString("watermarkPath");
+    ReadableArray images = options.getArray("images");
+    String watermark = options.getString("watermark");
     float scale = (float) options.getDouble("scale");
     float alpha = (float) options.getDouble("opacity");
     int angle = options.getInt("angle");
@@ -53,13 +58,13 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     String path = Environment.getExternalStoragePublicDirectory(
         Environment.DIRECTORY_PICTURES).getPath();
 
-    for (int i = 0; i < backgrounds.size(); i++) {
-      String background = backgrounds.getString(i);
+    for (int i = 0; i < images.size(); i++) {
+      String background = images.getString(i);
       String filename = path + "/" + (new File(background)).getName() + ".jpg";
       flattenImage(filename, background, watermark, scale, alpha, angle, left, top, position, padding);
       WritableMap map = Arguments.createMap();
       map.putInt("progress", i + 1);
-      map.putInt("total", backgrounds.size());
+      map.putInt("total", images.size());
       sendEvent(this.context, "watermarkprogress", map);
     }
     WritableMap response = Arguments.createMap();
@@ -79,14 +84,26 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
                             final float scale, final float alpha,
                             final int angle, int left, int top,
                             final int position, final float padding) {
-    Bitmap fg = BitmapFactory.decodeFile(foregroundImagePath);
+    Activity activity = getCurrentActivity();
+    InputStream fgInputStream;
+    InputStream bgInputStream;
+    try {
+      fgInputStream = activity.getContentResolver().openInputStream(Uri.parse(foregroundImagePath));
+      bgInputStream = activity.getContentResolver().openInputStream(Uri.parse(backgroundImagePath));
+    } catch (FileNotFoundException e) {
+      return;
+    }
+
+
+    Bitmap fg = BitmapFactory.decodeStream(fgInputStream);
     Paint paint = new Paint();
     paint.setAlpha((int)(alpha * 255));
 
-    Bitmap bg = BitmapFactory.decodeFile(backgroundImagePath);
-    Matrix bgMatrix = createMatrixWithExifOrientation(backgroundImagePath, bg);
-
-    Matrix matrix = createMatrixWithExifOrientation(foregroundImagePath, fg);
+    Bitmap bg = BitmapFactory.decodeStream(bgInputStream);
+    Matrix bgMatrix = new Matrix();
+//    Matrix bgMatrix = createMatrixWithExifOrientation(backgroundImagePath, bg);
+    Matrix matrix = new Matrix();
+    // Matrix matrix = createMatrixWithExifOrientation(foregroundImagePath, fg);
 
     matrix.postRotate(angle, fg.getWidth()/2, fg.getHeight()/2);
     matrix.postScale(scale, scale);

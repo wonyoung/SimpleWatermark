@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.ClipData;
 import android.content.ClipData.Item;
 import android.content.ActivityNotFoundException;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.net.Uri;
 
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -15,7 +17,12 @@ import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.String;
 
 public class ImagePickerModule extends ReactContextBaseJavaModule
@@ -82,14 +89,21 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
       ClipData clip = intent.getClipData();
       if (clip != null) {
         for (int i = 0; i < clip.getItemCount(); i++) {
-          images.pushString(clip.getItemAt(i).getUri().toString());
+          Uri uri = clip.getItemAt(i).getUri();
+          WritableMap image = getImageFrom(uri);
+          if (image != null) {
+            images.pushMap(image);
+          }
         }
         mPickerPromise.resolve(images);
       }
       else {
         Uri uri = intent.getData();
         if (uri != null){
-          images.pushString(uri.toString());
+          WritableMap image = getImageFrom(uri);
+          if (image != null) {
+            images.pushMap(image);
+          }
           mPickerPromise.resolve(images);
         }
         else {
@@ -98,5 +112,31 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
       }
     }
     mPickerPromise = null;
+  }
+
+  private WritableMap getImageFrom(final Uri uri) {
+    WritableMap image = Arguments.createMap();
+    Activity activity = getCurrentActivity();
+    InputStream is;
+    try {
+      is = activity.getContentResolver().openInputStream(uri);
+    } catch (FileNotFoundException e) {
+      return null;
+    }
+
+    BitmapFactory.Options k = new BitmapFactory.Options();
+    k.inJustDecodeBounds = true;
+    BitmapFactory.decodeStream(is, null, k);
+
+    try {
+      is.close();
+    } catch (IOException e) {
+    }
+
+    image.putString("uri", uri.toString());
+    image.putInt("width", k.outWidth);
+    image.putInt("height", k.outHeight);
+
+    return image;
   }
 }
