@@ -4,14 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.ClipData;
 import android.content.ClipData.Item;
+import android.content.ContentResolver;
 import android.content.ActivityNotFoundException;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.net.Uri;
-
-import android.provider.MediaStore.Images.Media;
-import android.database.Cursor;
-import android.database.CursorIndexOutOfBoundsException;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -23,22 +20,11 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.imaging.ImageProcessingException;
-import com.drew.metadata.Metadata;
-import com.drew.metadata.MetadataException;
-import com.drew.metadata.Directory;
-import com.drew.metadata.exif.ExifDirectoryBase;
-import com.drew.metadata.exif.ExifIFD0Directory;
-import com.drew.metadata.Tag;
-
 import java.io.File;
 import java.io.InputStream;
-import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.String;
-import java.lang.IllegalArgumentException;
 
 public class ImagePickerModule extends ReactContextBaseJavaModule
                                implements ActivityEventListener {
@@ -132,9 +118,11 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
   private WritableMap getImageFrom(final Uri uri) {
     WritableMap image = Arguments.createMap();
     Activity activity = getCurrentActivity();
+    ContentResolver contentResolver = activity.getContentResolver();
     InputStream is;
+    int orientation = 0;
     try {
-      is = activity.getContentResolver().openInputStream(uri);
+      is = contentResolver.openInputStream(uri);
     } catch (FileNotFoundException e) {
       return null;
     }
@@ -145,36 +133,17 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
 
     try {
       is.close();
+      is = contentResolver.openInputStream(uri);
+      orientation = Exif.getOrientation(is);
+    } catch (FileNotFoundException e) {
     } catch (IOException e) {
     }
 
     image.putString("uri", uri.toString());
     image.putInt("width", k.outWidth);
     image.putInt("height", k.outHeight);
-    image.putInt("orientation", getOrientationFromExif(uri));
+    image.putInt("orientation", orientation);
 
     return image;
-  }
-
-  private int getOrientationFromExif(final Uri uri) {
-    Activity activity = getCurrentActivity();
-    int orientation = 0;
-
-    try {
-      InputStream is = activity.getContentResolver().openInputStream(uri);
-      BufferedInputStream bis = new BufferedInputStream(is);
-      Metadata metadata = ImageMetadataReader.readMetadata(bis);
-
-      Directory exifDirectory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-      if (exifDirectory != null) {
-        orientation = exifDirectory.getInt(ExifDirectoryBase.TAG_ORIENTATION);
-      }
-    } catch (FileNotFoundException e) {
-    } catch (ImageProcessingException e) {
-    } catch (IOException e) {
-    } catch (MetadataException e) {
-    }
-
-    return orientation;
   }
 }
