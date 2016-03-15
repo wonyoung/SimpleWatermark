@@ -95,7 +95,6 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
       return;
     }
 
-
     Bitmap fg = BitmapFactory.decodeStream(fgis);
     Bitmap bg = BitmapFactory.decodeStream(bgis);
     Paint paint = new Paint();
@@ -109,25 +108,39 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     } catch (FileNotFoundException e) {
     } catch (IOException e) {
     }
+    Matrix bgMatrix = new Matrix();
+    int orientation = Exif.getOrientation(bgis);
+    applyOrientation(bgMatrix, orientation, bg);
 
-    Matrix bgMatrix = createMatrixWithExifOrientation(bgis, bg);
-    Matrix matrix = createMatrixWithExifOrientation(fgis, fg);
+    int outputWidth, outputHeight;
+    if (orientation >= 5) {
+      outputWidth = bg.getHeight();
+      outputHeight = bg.getWidth();
+    }
+    else {
+      outputWidth = bg.getWidth();
+      outputHeight = bg.getHeight();
+    }
+
+
+    Matrix matrix = new Matrix();
+    applyOrientation(matrix, Exif.getOrientation(fgis), fg);
 
     matrix.postRotate(angle, fg.getWidth()/2, fg.getHeight()/2);
     matrix.postScale(scale, scale);
 
-    float scaleWidth = 1.0f * bg.getWidth()/fg.getWidth();
-    float scaleHeight = 1.0f * bg.getHeight()/fg.getHeight();
+    float scaleWidth = 1.0f * outputWidth/fg.getWidth();
+    float scaleHeight = 1.0f * outputHeight/fg.getHeight();
     float minScale = (scaleWidth < scaleHeight) ? scaleWidth:scaleHeight;
 
     matrix.postScale(minScale, minScale);
 
     if (position > 0) {
-      left = leftByPosition(position, padding, (int) (fg.getWidth()*scale*minScale), bg.getWidth());
-      top = topByPosition(position, padding, (int) (fg.getHeight()*scale*minScale), bg.getHeight());
+      left = leftByPosition(position, padding, (int) (fg.getWidth()*scale*minScale), outputWidth);
+      top = topByPosition(position, padding, (int) (fg.getHeight()*scale*minScale), outputHeight);
     }
 
-    Bitmap output = Bitmap.createBitmap(bg.getWidth(), bg.getHeight(), Bitmap.Config.ARGB_8888);
+    Bitmap output = Bitmap.createBitmap(outputWidth, outputHeight, Bitmap.Config.ARGB_8888);
     Canvas canvas = new Canvas(output);
     canvas.drawBitmap(bg, bgMatrix, null);
     canvas.translate(left, top);
@@ -157,9 +170,7 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     return diff * y / 2 + (int) ((1-y)*diff*padding);
   }
 
-  private Matrix createMatrixWithExifOrientation(final InputStream is, final Bitmap b) {
-    Matrix m = new Matrix();
-    int orientation = Exif.getOrientation(is);
+  private Matrix applyOrientation(Matrix m, final int orientation, final Bitmap b) {
 
 // TODO:: check height and width of orientation 5,6,7,8;
     switch(orientation) {
