@@ -16,7 +16,7 @@ import React, {
 
 import Subscribable from 'Subscribable';
 
-const { ImagePickerManager, Watermarker, ImagePicker } = NativeModules;
+const { Watermarker, ImagePicker } = NativeModules;
 import { OpacityControl, ScaleControl, AngleControl, PaddingControl } from './Sliders';
 import PositionControl from './PositionControl';
 import WatermarkPreview from './WatermarkPreview';
@@ -110,7 +110,7 @@ const SimpleWatermark = React.createClass({
   launchImagePicker: async function() {
     try {
       var images = await ImagePicker.launch(true);
-
+      console.log(images);
       this.setState({...this.state, images })
     } catch (e) {
       console.error(e);
@@ -120,7 +120,7 @@ const SimpleWatermark = React.createClass({
   launchWatermarkPicker: async function() {
     try {
       var [watermark,] = await ImagePicker.launch(false);
-
+      console.log(watermark);
       this.setState({...this.state, watermark});
     } catch (e) {
       console.error(e);

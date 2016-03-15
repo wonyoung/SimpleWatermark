@@ -14,11 +14,23 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class Exif {
-  public static int getOrientation(final InputStream is) {
-    int orientation = 0;
+  private static Metadata createMetadata(final InputStream is)
+      throws ImageProcessingException, IOException {
+    Metadata metadata = null;
     BufferedInputStream bis = new BufferedInputStream(is);
     try {
-      Metadata metadata = ImageMetadataReader.readMetadata(bis);
+      metadata = ImageMetadataReader.readMetadata(bis);
+    } finally {
+      bis.close();
+    }
+    return metadata;
+  }
+
+  public static int getOrientation(final InputStream is) {
+    int orientation = 0;
+
+    try {
+      Metadata metadata = createMetadata(is);
       Directory exifDirectory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
       if (exifDirectory != null) {
         orientation = exifDirectory.getInt(ExifDirectoryBase.TAG_ORIENTATION);
@@ -26,11 +38,6 @@ public class Exif {
     } catch (ImageProcessingException e) {
     } catch (IOException e) {
     } catch (MetadataException e) {
-    } finally {
-      try {
-        bis.close();
-      } catch (IOException e) {
-      }
     }
 
     return orientation;

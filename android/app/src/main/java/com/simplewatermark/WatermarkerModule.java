@@ -171,8 +171,6 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
   }
 
   private Matrix applyOrientation(Matrix m, final int orientation, final Bitmap b) {
-
-// TODO:: check height and width of orientation 5,6,7,8;
     switch(orientation) {
       case 1:
         break;
@@ -181,27 +179,29 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
         m.postTranslate(b.getWidth(), 0);
         break;
       case 3:
-        m.setRotate(180, b.getWidth()/2, b.getHeight()/2);
+        m.postRotate(180);
+        m.postTranslate(b.getWidth(), b.getHeight());
         break;
       case 4:
         m.postScale(1, -1);
         m.postTranslate(0, b.getHeight());
         break;
       case 5:
-        m.postRotate(90, b.getWidth()/2, b.getHeight()/2);
-        m.postScale(-1, 1);
-        m.postTranslate(b.getWidth(), 0);
+        m.postScale(1, -1);
+        m.postRotate(90);
         break;
       case 6:
-        m.postRotate(90, b.getWidth()/2, b.getHeight()/2);
+        m.postRotate(90);
+        m.postTranslate(b.getHeight(), 0);
         break;
       case 7:
         m.postScale(-1, 1);
-        m.postTranslate(b.getWidth(), 0);
-        m.postRotate(90, b.getWidth()/2, b.getHeight()/2);
+        m.postRotate(90);
+        m.postTranslate(b.getHeight(), b.getWidth());
         break;
       case 8:
-        m.postRotate(270, b.getWidth()/2, b.getHeight()/2);
+        m.postRotate(270);
+        m.postTranslate(b.getHeight(), b.getWidth());
         break;
       default:
         break;
