@@ -6,10 +6,10 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.media.ExifInterface;
 
 import android.net.Uri;
 import android.app.Activity;
+import android.content.ContentResolver;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -85,25 +85,33 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
                             final int angle, int left, int top,
                             final int position, final float padding) {
     Activity activity = getCurrentActivity();
-    InputStream fgInputStream;
-    InputStream bgInputStream;
+    ContentResolver cr = activity.getContentResolver();
+
+    InputStream fgis, bgis;
     try {
-      fgInputStream = activity.getContentResolver().openInputStream(Uri.parse(foregroundImagePath));
-      bgInputStream = activity.getContentResolver().openInputStream(Uri.parse(backgroundImagePath));
+      fgis = cr.openInputStream(Uri.parse(foregroundImagePath));
+      bgis = cr.openInputStream(Uri.parse(backgroundImagePath));
     } catch (FileNotFoundException e) {
       return;
     }
 
 
-    Bitmap fg = BitmapFactory.decodeStream(fgInputStream);
+    Bitmap fg = BitmapFactory.decodeStream(fgis);
+    Bitmap bg = BitmapFactory.decodeStream(bgis);
     Paint paint = new Paint();
     paint.setAlpha((int)(alpha * 255));
 
-    Bitmap bg = BitmapFactory.decodeStream(bgInputStream);
-    Matrix bgMatrix = new Matrix();
-//    Matrix bgMatrix = createMatrixWithExifOrientation(backgroundImagePath, bg);
-    Matrix matrix = new Matrix();
-    // Matrix matrix = createMatrixWithExifOrientation(foregroundImagePath, fg);
+    try {
+      fgis.close();
+      bgis.close();
+      fgis = cr.openInputStream(Uri.parse(foregroundImagePath));
+      bgis = cr.openInputStream(Uri.parse(backgroundImagePath));
+    } catch (FileNotFoundException e) {
+    } catch (IOException e) {
+    }
+
+    Matrix bgMatrix = createMatrixWithExifOrientation(bgis, bg);
+    Matrix matrix = createMatrixWithExifOrientation(fgis, fg);
 
     matrix.postRotate(angle, fg.getWidth()/2, fg.getHeight()/2);
     matrix.postScale(scale, scale);
@@ -149,15 +157,10 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     return diff * y / 2 + (int) ((1-y)*diff*padding);
   }
 
-  private Matrix createMatrixWithExifOrientation(final String filename, final Bitmap b) {
+  private Matrix createMatrixWithExifOrientation(final InputStream is, final Bitmap b) {
     Matrix m = new Matrix();
-    int orientation = 0;
-    try {
-      ExifInterface exif = new ExifInterface(filename);
-      orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-    } catch (Exception e) {
+    int orientation = Exif.getOrientation(is);
 
-    }
 // TODO:: check height and width of orientation 5,6,7,8;
     switch(orientation) {
       case 1:
