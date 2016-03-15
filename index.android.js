@@ -16,6 +16,8 @@ import React, {
 
 import Subscribable from 'Subscribable';
 
+import { MKProgress } from 'react-native-material-kit';
+
 const { Watermarker, ImagePicker } = NativeModules;
 import { OpacityControl, ScaleControl, AngleControl, PaddingControl } from './Sliders';
 import PositionControl from './PositionControl';
@@ -55,7 +57,9 @@ const SimpleWatermark = React.createClass({
     position: 0,
     padding: 0,
     left: 0,
-    top: 0
+    top: 0,
+    onWriting: false,
+    writeProgress: 0.0
   }),
 
   mixins: [Subscribable.Mixin],
@@ -86,10 +90,11 @@ const SimpleWatermark = React.createClass({
   },
 
   showProgress: function(a) {
-    console.log('Progress', a);
+    this.setState({...this.state, writeProgress: a.progress});
+    console.log(this.state);
   },
 
-  export: function() {
+  export: async function() {
     console.log(this.state);
     const {
       watermark,
@@ -97,14 +102,19 @@ const SimpleWatermark = React.createClass({
       ...props
     } = this.state;
 
-    Watermarker.make({
-      images: images.map(i => i.uri),
-      watermark: watermark.uri,
-      ...props
-    }, (e) => {
-      console.log(e);
+//    this.setState({...this.state, onWriting: true, writeProgress: 0.0});
+
+    try {
+      await Watermarker.make({
+        images: images.map(i => i.uri),
+        watermark: watermark.uri,
+        ...props
+      });
+//      console.log(e);
       ToastAndroid.show('Image saved.', ToastAndroid.SHORT);
-    });
+//      this.setState({...this.state, onWriting: false, writeProgress: 0.0});
+    } catch (e) {
+    }
   },
 
   launchImagePicker: async function() {
@@ -137,11 +147,13 @@ const SimpleWatermark = React.createClass({
     }
 
     return (
-      <View style={{borderWidth:2, borderColor:'red', flex:1} }  ref='rootView'>
+      <View style={{flex:1} } ref='rootView'>
+      <MKProgress progress={this.state.writeProgress} />
         <WatermarkPreview
           onChangePosition={this._onPositionUpdate}
           {...this.state}
           />
+
         <OpacityControl opacity={this.state.opacity} onChangeOpacity={this._onOpacityUpdate} />
         <ScaleControl scale={this.state.scale} onChangeScale={this._onScaleUpdate} />
         <AngleControl angle={this.state.angle} onChangeAngle={this._onAngleUpdate} />

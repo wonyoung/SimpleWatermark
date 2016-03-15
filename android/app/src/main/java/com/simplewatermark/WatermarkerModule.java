@@ -12,7 +12,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -44,7 +44,7 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void make(final ReadableMap options, final Callback callback) {
+  public void make(final ReadableMap options, final Promise promise) {
     ReadableArray images = options.getArray("images");
     String watermark = options.getString("watermark");
     float scale = (float) options.getDouble("scale");
@@ -63,13 +63,13 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
       String filename = path + "/" + (new File(background)).getName() + ".jpg";
       flattenImage(filename, background, watermark, scale, alpha, angle, left, top, position, padding);
       WritableMap map = Arguments.createMap();
-      map.putInt("progress", i + 1);
+      map.putDouble("progress", (double)(i+1) / images.size());
       map.putInt("total", images.size());
       sendEvent(this.context, "watermarkprogress", map);
     }
     WritableMap response = Arguments.createMap();
 
-    callback.invoke(response);
+    promise.resolve(response);
   }
 
   private void sendEvent(ReactContext reactContext, String eventName, WritableMap params) {

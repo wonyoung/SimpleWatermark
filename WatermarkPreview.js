@@ -134,8 +134,7 @@ const styles = StyleSheet.create({
     flex: 9,
     marginBottom: 0,
     flexWrap:'nowrap',
-    borderWidth: 3,
-    borderColor: 'yellow'
+    backgroundColor: 'darkgray'
   },
   preview: {
   }
