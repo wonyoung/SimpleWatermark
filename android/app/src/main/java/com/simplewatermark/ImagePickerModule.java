@@ -9,6 +9,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.net.Uri;
 
+import android.provider.MediaStore.Images.Media;
+import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
+
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -19,11 +23,22 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.Directory;
+import com.drew.metadata.exif.ExifDirectoryBase;
+import com.drew.metadata.exif.ExifIFD0Directory;
+import com.drew.metadata.Tag;
+
 import java.io.File;
 import java.io.InputStream;
+import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.String;
+import java.lang.IllegalArgumentException;
 
 public class ImagePickerModule extends ReactContextBaseJavaModule
                                implements ActivityEventListener {
@@ -136,7 +151,30 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
     image.putString("uri", uri.toString());
     image.putInt("width", k.outWidth);
     image.putInt("height", k.outHeight);
+    image.putInt("orientation", getOrientationFromExif(uri));
 
     return image;
+  }
+
+  private int getOrientationFromExif(final Uri uri) {
+    Activity activity = getCurrentActivity();
+    int orientation = 0;
+
+    try {
+      InputStream is = activity.getContentResolver().openInputStream(uri);
+      BufferedInputStream bis = new BufferedInputStream(is);
+      Metadata metadata = ImageMetadataReader.readMetadata(bis);
+
+      Directory exifDirectory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+      if (exifDirectory != null) {
+        orientation = exifDirectory.getInt(ExifDirectoryBase.TAG_ORIENTATION);
+      }
+    } catch (FileNotFoundException e) {
+    } catch (ImageProcessingException e) {
+    } catch (IOException e) {
+    } catch (MetadataException e) {
+    }
+
+    return orientation;
   }
 }
