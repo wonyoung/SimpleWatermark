@@ -56,16 +56,17 @@ const SimpleWatermark = React.createClass({
     padding: 0,
     left: 0,
     top: 0,
-    onWriting: false,
     writeProgress: 0.0,
-    onStarting: true
+    dialog: "onstart"
   }),
 
   mixins: [Subscribable.Mixin],
 
   componentDidMount: function() {
     this.addListenerOn(DeviceEventEmitter, 'watermarkprogress', this.showProgress);
-    this.setState({...this.state, onStarting: false});
+    setTimeout( () => {
+      this.setState({...this.state, dialog: 'none'});
+    }, 100);
   },
 
   _onOpacityUpdate: function(opacity) {
@@ -104,17 +105,17 @@ const SimpleWatermark = React.createClass({
       ...props
     } = this.state;
 
-    this.setState({...this.state, onWriting: true, writeProgress: 0.0});
+    this.setState({...this.state, dialog: 'onsave', writeProgress: 0.0});
     try {
       await Watermarker.make({
           images: images.map(i => i.uri),
           watermark: watermark.uri,
           ...props
       });
-      ToastAndroid.show('Image saved.', ToastAndroid.SHORT);
       setTimeout(() => {
-        this.setState({...this.state, onWriting: false, writeProgress: 0.0});
-      }, 1500);
+        this.setState({...this.state, dialog:'none', writeProgress: 0.0});
+        ToastAndroid.show('Image saved.', ToastAndroid.SHORT);
+      }, 1000);
     } catch (e) {
 
     }
@@ -137,6 +138,15 @@ const SimpleWatermark = React.createClass({
       this.setState({...this.state, watermark});
     } catch (e) {
       console.error(e);
+    }
+  },
+
+  renderDialog: function() {
+    if (this.state.dialog === "onsave") {
+      return <SaveDialog progress={this.state.writeProgress} />
+    }
+    else if (this.state.dialog === "onstart") {
+      return <Welcome />
     }
   },
 
@@ -167,8 +177,7 @@ const SimpleWatermark = React.createClass({
         <UpperTools
           onSave={() => this.export()}
           />
-        {this.state.onWriting ? <SaveDialog progress={this.state.writeProgress} />:[]}
-        {this.state.onStarting ? <Welcome />:[]}
+        {this.renderDialog()}
       </View>
     );
   }
@@ -178,8 +187,8 @@ class Welcome extends Component {
   render() {
     return (
       <View
-        style={styles.save_dialog} >
-        <Text style={{color:'black'}}> Simple Watermark </Text>
+        style={styles.welcome} >
+        <Text style={{color:'black', fontSize:24}}>Simple Watermark</Text>
       </View>
     );
   }

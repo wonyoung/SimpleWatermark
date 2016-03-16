@@ -14,8 +14,8 @@ import ProgressBar from 'ProgressBarAndroid';
 export class SaveDialog extends Component {
   render() {
     return (
-      <View
-        style={styles.save_dialog} >
+      <View style={styles.save_dialog} >
+        <View style={styles.save_dialog_bg} />
         <ProgressBar
           progress={this.props.progress} />
       </View>
@@ -30,9 +30,16 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
-    backgroundColor: 'black',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  save_dialog_bg: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: 'black',
     opacity: 0.6
   }
 });
