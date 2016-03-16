@@ -6,27 +6,20 @@
 import React, {
   AppRegistry,
   Component,
-  Text,
-  Image,
   View,
-  NativeModules,
+  Text,
   ToastAndroid,
   DeviceEventEmitter,
   StyleSheet,
-  TouchableOpacity,
-  Alert
 } from 'react-native';
-
-import I18n from 'react-native-i18n';
 
 import Subscribable from 'Subscribable';
 
-import ProgressBar from 'ProgressBarAndroid';
-
-const { Watermarker, ImagePicker, RNI18n } = NativeModules;
-import { OpacityControl, ScaleControl, AngleControl, PaddingControl } from './Sliders';
-import PositionControl from './PositionControl';
+const { Watermarker, ImagePicker } = React.NativeModules;
 import WatermarkPreview from './WatermarkPreview';
+import { WatermarkTools, UpperTools } from './WatermarkTools';
+import { SaveDialog } from './Dialogs';
+import { TransformController } from './Controllers';
 
 const testimages = {
   images: [
@@ -64,13 +57,15 @@ const SimpleWatermark = React.createClass({
     left: 0,
     top: 0,
     onWriting: false,
-    writeProgress: 0.0
+    writeProgress: 0.0,
+    onStarting: true
   }),
 
   mixins: [Subscribable.Mixin],
 
   componentDidMount: function() {
     this.addListenerOn(DeviceEventEmitter, 'watermarkprogress', this.showProgress);
+    this.setState({...this.state, onStarting: false});
   },
 
   _onOpacityUpdate: function(opacity) {
@@ -119,7 +114,7 @@ const SimpleWatermark = React.createClass({
       ToastAndroid.show('Image saved.', ToastAndroid.SHORT);
       setTimeout(() => {
         this.setState({...this.state, onWriting: false, writeProgress: 0.0});
-      }, 2500);
+      }, 1500);
     } catch (e) {
 
     }
@@ -146,14 +141,6 @@ const SimpleWatermark = React.createClass({
   },
 
   render: function() {
-    const BUTTON_SIZE = 40;
-    const button_style = {
-      height: BUTTON_SIZE,
-      borderRadius: BUTTON_SIZE / 2,
-      backgroundColor: 'lightgreen',
-      justifyContent:'center'
-    }
-    const progress = this.state.onWriting ? <ProgressBar styleAttr="Horizontal" progress={this.state.writeProgress} />:[];
 
     return (
       <View style={{flex:1, backgroundColor:'black'} } ref='rootView'>
@@ -161,84 +148,54 @@ const SimpleWatermark = React.createClass({
           onChangePosition={this._onPositionUpdate}
           {...this.state}
           />
-        {progress}
-        <OpacityControl opacity={this.state.opacity} onChangeOpacity={this._onOpacityUpdate} />
-        <ScaleControl scale={this.state.scale} onChangeScale={this._onScaleUpdate} />
-        <AngleControl angle={this.state.angle} onChangeAngle={this._onAngleUpdate} />
-        <View style={{flexDirection:'row'}} >
-          <View style={{flex:2}} >
-            <PositionControl onChangePosition={this._onPositionUpdate} />
-          </View>
-          <View style={{flex:8}} >
-            <PaddingControl padding={this.state.padding} onChangePadding={this._onPaddingUpdate} />
-          </View>
-        </View>
-        <View style={styles.button_container} >
-          <TouchableOpacity onPress={()=>this.launchImagePicker()} >
-            <Image
-              style={styles.buttons}
-              source={require('./img/ic_collections_white_48dp.png')}
-              />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={()=>this.launchWatermarkPicker()} >
-            <Image
-              style={styles.buttons}
-              source={require('./img/ic_format_paint_white_48dp.png')}
-              />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={()=>this.launchImagePicker()} >
-            <Image
-              style={styles.buttons}
-              source={require('./img/ic_tune_white_48dp.png')}
-              />
-          </TouchableOpacity>
-        </View>
-        <View
-          style={styles.upper_container}
-          >
-          <Text
-            style={styles.button_save}
-            onPress={() => this.export()}
-            >{I18n.t('save')}</Text>
-          <Text>      </Text>
-        </View>
+        <TransformController
+          opacity={this.state.opacity}
+          scale={this.state.scale}
+          angle={this.state.angle}
+          padding={this.state.padding}
+          onChangeOpacity={this._onOpacityUpdate}
+          onChangeScale={this._onScaleUpdate}
+          onChangeAngle={this._onAngleUpdate}
+          onChangePosition={this._onPositionUpdate}
+          onChangePadding={this._onPaddingUpdate}
+          />
+        <WatermarkTools
+          onImageSelect={() => this.launchImagePicker()}
+          onWatermarkSelect={() => this.launchWatermarkPicker()}
+          onToolsToggle={() => this.launchWatermarkPicker()}
+          />
+        <UpperTools
+          onSave={() => this.export()}
+          />
+        {this.state.onWriting ? <SaveDialog progress={this.state.writeProgress} />:[]}
+        {this.state.onStarting ? <Welcome />:[]}
       </View>
     );
   }
 });
 
+class Welcome extends Component {
+  render() {
+    return (
+      <View
+        style={styles.save_dialog} >
+        <Text style={{color:'black'}}> Simple Watermark </Text>
+      </View>
+    );
+  }
+}
+
 const styles = StyleSheet.create({
-  button_container: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    position: 'relative'
-  },
-  buttons: {
-  },
-  upper_container: {
-    top:0,
-    right:0,
+  welcome: {
     position: 'absolute',
-    flexDirection: 'row',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: 'white',
     alignItems: 'center',
-  },
-  button_save: {
-    margin: 17,
-    padding: 5,
-    color: 'white',
-    fontSize: 16
+    justifyContent: 'center',
   }
 });
-
-I18n.fallbacks = true;
-I18n.translations = {
-  en: {
-    save: 'Save  '
-  },
-  ko: {
-    save: '저장 '
-  }
-};
 
 AppRegistry.registerComponent('SimpleWatermark', () => SimpleWatermark);
