@@ -14,11 +14,13 @@ import React, {
   DeviceEventEmitter
 } from 'react-native';
 
+import I18n from 'react-native-i18n';
+
 import Subscribable from 'Subscribable';
 
 import { MKProgress } from 'react-native-material-kit';
 
-const { Watermarker, ImagePicker } = NativeModules;
+const { Watermarker, ImagePicker, RNI18n } = NativeModules;
 import { OpacityControl, ScaleControl, AngleControl, PaddingControl } from './Sliders';
 import PositionControl from './PositionControl';
 import WatermarkPreview from './WatermarkPreview';
@@ -183,5 +185,16 @@ const SimpleWatermark = React.createClass({
     );
   }
 });
+
+
+I18n.fallbacks = true;
+I18n.translations = {
+  en: {
+    save: 'Save  '
+  },
+  ko: {
+    save: '저장 '
+  }
+};
 
 AppRegistry.registerComponent('SimpleWatermark', () => SimpleWatermark);
