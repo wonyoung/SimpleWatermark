@@ -60,7 +60,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
 
     final Intent getImageIntent = new Intent(Intent.ACTION_GET_CONTENT);
     getImageIntent.setType("image/*");
-    getImageIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+    // getImageIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
     getImageIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
 
     final Intent chooserIntent = Intent.createChooser(getImageIntent, "Pick an image");

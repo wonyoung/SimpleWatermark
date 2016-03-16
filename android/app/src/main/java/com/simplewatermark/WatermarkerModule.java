@@ -31,11 +31,9 @@ import java.io.FileOutputStream;
 import java.lang.String;
 
 public class WatermarkerModule extends ReactContextBaseJavaModule {
-  private ReactContext context;
 
   public WatermarkerModule(ReactApplicationContext reactContext) {
     super(reactContext);
-    this.context = reactContext;
   }
 
   @Override
@@ -45,31 +43,36 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void make(final ReadableMap options, final Promise promise) {
-    ReadableArray images = options.getArray("images");
-    String watermark = options.getString("watermark");
-    float scale = (float) options.getDouble("scale");
-    float alpha = (float) options.getDouble("opacity");
-    int angle = options.getInt("angle");
-    int left = options.getInt("left");
-    int top = options.getInt("top");
-    int position = options.getInt("position");
-    float padding = (float) options.getDouble("padding");
+    final ReadableArray images = options.getArray("images");
+    final String watermark = options.getString("watermark");
+    final float scale = (float) options.getDouble("scale");
+    final float alpha = (float) options.getDouble("opacity");
+    final int angle = options.getInt("angle");
+    final int left = options.getInt("left");
+    final int top = options.getInt("top");
+    final int position = options.getInt("position");
+    final float padding = (float) options.getDouble("padding");
 
-    String path = Environment.getExternalStoragePublicDirectory(
+    final String path = Environment.getExternalStoragePublicDirectory(
         Environment.DIRECTORY_PICTURES).getPath();
 
-    for (int i = 0; i < images.size(); i++) {
-      String background = images.getString(i);
-      String filename = path + "/" + (new File(background)).getName() + ".jpg";
-      flattenImage(filename, background, watermark, scale, alpha, angle, left, top, position, padding);
-      WritableMap map = Arguments.createMap();
-      map.putDouble("progress", (double)(i+1) / images.size());
-      map.putInt("total", images.size());
-      sendEvent(this.context, "watermarkprogress", map);
-    }
-    WritableMap response = Arguments.createMap();
-
-    promise.resolve(response);
+    Thread t = new Thread() {
+      @Override
+      public void run() {
+        for (int i = 0; i < images.size(); i++) {
+          String background = images.getString(i);
+          String filename = path + "/" + (new File(background)).getName() + ".jpg";
+          flattenImage(filename, background, watermark, scale, alpha, angle, left, top, position, padding);
+          WritableMap map = Arguments.createMap();
+          map.putDouble("progress", (double)(i+1) / images.size());
+          map.putInt("total", images.size());
+          sendEvent(getReactApplicationContext(), "watermarkprogress", map);
+        }
+        WritableMap response = Arguments.createMap();
+        promise.resolve(response);
+      }
+    };
+    t.start();
   }
 
   private void sendEvent(ReactContext reactContext, String eventName, WritableMap params) {

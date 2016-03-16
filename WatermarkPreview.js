@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     flex: 9,
     marginBottom: 0,
     flexWrap:'nowrap',
-    backgroundColor: 'darkgray'
+    backgroundColor: 'black'
   },
   preview: {
   }
