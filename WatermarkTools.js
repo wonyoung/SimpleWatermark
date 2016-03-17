@@ -19,7 +19,7 @@ const { RNI18n } = NativeModules;
 export class WatermarkTools extends Component {
   render() {
     return (
-      <View style={styles.button_container} >
+      <View style={[this.props.style,styles.button_container]} >
         <TouchableOpacity onPress={this.props.onImageSelect} >
           <Image
             style={styles.buttons}
@@ -70,7 +70,6 @@ I18n.translations = {
 
 const styles = StyleSheet.create({
   button_container: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-around',
     position: 'relative'

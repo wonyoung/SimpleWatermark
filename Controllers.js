@@ -15,7 +15,7 @@ import PositionControl from './PositionControl';
 export class TransformController extends Component {
   render() {
     return (
-      <View>
+      <View style={this.props.style} >
         <OpacityControl opacity={this.props.opacity} onChangeOpacity={this.props.onChangeOpacity} />
         <ScaleControl scale={this.props.scale} onChangeScale={this.props.onChangeScale} />
         <AngleControl angle={this.props.angle} onChangeAngle={this.props.onChangeAngle} />

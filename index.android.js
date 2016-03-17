@@ -13,8 +13,6 @@ import React, {
   StyleSheet,
 } from 'react-native';
 
-import Subscribable from 'Subscribable';
-
 const { Watermarker, ImagePicker } = React.NativeModules;
 import WatermarkPreview from './WatermarkPreview';
 import { WatermarkTools, UpperTools } from './WatermarkTools';
@@ -25,22 +23,18 @@ const testimages = {
   images: [
     {
       height: 1200,
-      path: "/data/user/0/com.simplewatermark/cache/photo-image:11",
       uri: "file:///data/user/0/com.simplewatermark/cache/photo-image%3A11",
       width: 1600
     },
     {
       height: 1424,
-      path: "/data/user/0/com.simplewatermark/cache/photo-image:12",
       uri: "file://"+"/storage/emulated/0/DCIM/mountain-2.jpg",
       width: 2144,
     }
   ],
   watermark: {
     height: 512,
-    path: "/storage/emulated/0/DCIM/624dc72b6deef6abddf29031c1ac7224.png",
-    uri: "file://" + "/storage/emulated/0/DCIM/624dc72b6deef6abddf29031c1ac7224.png",
-  //  uri: "content://media/external/images/media/10",
+    uri: "content://media/external/images/media/10",
     width: 512
   }
 };
@@ -57,13 +51,13 @@ const SimpleWatermark = React.createClass({
     left: 0,
     top: 0,
     writeProgress: 0.0,
-    dialog: "onstart"
+    dialog: "onstart",
+    transformOn: false
   }),
 
-  mixins: [Subscribable.Mixin],
-
   componentDidMount: function() {
-    this.addListenerOn(DeviceEventEmitter, 'watermarkprogress', this.showProgress);
+    DeviceEventEmitter.addListener('watermarkprogress', this.showProgress);
+
     setTimeout( () => {
       this.setState({...this.state, dialog: 'none'});
     }, 100);
@@ -141,6 +135,11 @@ const SimpleWatermark = React.createClass({
     }
   },
 
+  toggleTransformController: function() {
+    const transformOn = !this.state.transformOn;
+    this.setState({...this.state, transformOn});
+  },
+
   renderDialog: function() {
     if (this.state.dialog === "onsave") {
       return <SaveDialog progress={this.state.writeProgress} />
@@ -150,15 +149,11 @@ const SimpleWatermark = React.createClass({
     }
   },
 
-  render: function() {
-
-    return (
-      <View style={{flex:1, backgroundColor:'black'} } ref='rootView'>
-        <WatermarkPreview
-          onChangePosition={this._onPositionUpdate}
-          {...this.state}
-          />
+  renderTransformController: function() {
+    if (this.state.transformOn) {
+      return (
         <TransformController
+          style={styles.transform_controller}
           opacity={this.state.opacity}
           scale={this.state.scale}
           angle={this.state.angle}
@@ -169,10 +164,25 @@ const SimpleWatermark = React.createClass({
           onChangePosition={this._onPositionUpdate}
           onChangePadding={this._onPaddingUpdate}
           />
+      );
+    }
+  },
+
+  render: function() {
+
+    return (
+      <View style={styles.container} >
+        <View style={styles.workspace} >
+          <WatermarkPreview
+            onChangePosition={this._onPositionUpdate}
+            {...this.state}
+            />
+          { this.renderTransformController() }
+        </View>
         <WatermarkTools
           onImageSelect={() => this.launchImagePicker()}
           onWatermarkSelect={() => this.launchWatermarkPicker()}
-          onToolsToggle={() => this.launchWatermarkPicker()}
+          onToolsToggle={() => this.toggleTransformController()}
           />
         <UpperTools
           onSave={() => this.export()}
@@ -195,6 +205,21 @@ class Welcome extends Component {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'black'
+  },
+  workspace: {
+    flex: 1,
+  },
+  transform_controller: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'black',
+    opacity: 0.6
+  },
   welcome: {
     position: 'absolute',
     left: 0,
