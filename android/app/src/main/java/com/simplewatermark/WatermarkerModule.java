@@ -53,8 +53,7 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     final int position = options.getInt("position");
     final float padding = (float) options.getDouble("padding");
 
-    final String path = Environment.getExternalStoragePublicDirectory(
-        Environment.DIRECTORY_PICTURES).getPath();
+    final String path = getImagePathOrCreate("watermark");
 
     Thread t = new Thread() {
       @Override
@@ -73,6 +72,22 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
       }
     };
     t.start();
+  }
+
+  private String getImagePathOrCreate(final String dirname) {
+    final String base = Environment.getExternalStoragePublicDirectory(
+        Environment.DIRECTORY_PICTURES).getPath();
+    final String pathname = base + "/" + dirname;
+    File imagePath = new File(pathname);
+    if (imagePath.exists()) {
+      return pathname;
+    }
+
+    if (imagePath.mkdirs()) {
+      return pathname;
+    }
+
+    return base;
   }
 
   private void sendEvent(ReactContext reactContext, String eventName, WritableMap params) {
