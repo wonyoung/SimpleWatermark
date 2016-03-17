@@ -34,64 +34,64 @@ const testimages = {
   ],
   watermark: {
     height: 512,
-    uri: "content://media/external/images/media/10",
+    uri: "content://com.android.externalstorage.documents/document/primary%3ADCIM%2F624dc72b6deef6abddf29031c1ac7224.png",
     width: 512
   }
 };
 
-const SimpleWatermark = React.createClass({
-  getInitialState: () => ({
-    watermark: testimages.watermark,
-    images: testimages.images,
-    opacity: 0.8,
-    scale: 0.5,
-    angle: 0,
-    position: 0,
-    padding: 0,
-    left: 0,
-    top: 0,
-    writeProgress: 0.0,
-    dialog: "onstart",
-    transformOn: false
-  }),
+class SimpleWatermark extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      watermark: testimages.watermark,
+      images: testimages.images,
+      opacity: 0.8,
+      scale: 0.5,
+      angle: 0,
+      position: 0,
+      padding: 0,
+      left: 0,
+      top: 0,
+      writeProgress: 0.0,
+      dialog: "onstart",
+      transformOn: false
+    };
+  }
 
-  componentDidMount: function() {
-    DeviceEventEmitter.addListener('watermarkprogress', this.showProgress);
+  componentDidMount() {
+    DeviceEventEmitter.addListener('watermarkprogress', this.showProgress.bind(this));
+    this.setState({...this.state, dialog: 'none'});
+  }
 
-    setTimeout( () => {
-      this.setState({...this.state, dialog: 'none'});
-    }, 100);
-  },
-
-  _onOpacityUpdate: function(opacity) {
+  _onOpacityUpdate(opacity) {
     this.setState({...this.state, opacity});
-  },
+  }
 
-  _onScaleUpdate: function(scale) {
+  _onScaleUpdate(scale) {
     this.setState({...this.state, scale});
-  },
+  }
 
-  _onAngleUpdate: function(fAngle) {
+  _onAngleUpdate(fAngle) {
     const angle = parseInt(fAngle);
     this.setState({...this.state, angle});
-  },
+  }
 
-  _onPositionUpdate: function(position) {
+  _onPositionUpdate(position) {
     this.setState({...this.state, position});
-  },
+  }
 
-  _onPaddingUpdate: function(padding) {
+  _onPaddingUpdate(padding) {
     this.setState({...this.state, padding})
-  },
+  }
 
-  showProgress: function(a) {
+  showProgress(a) {
     this.setState({...this.state, writeProgress: a.progress}, () => {
       console.log('progress', this.state.writeProgress);
     });
     console.log(this.state);
-  },
+  }
 
-  export: async function() {
+  async export() {
     console.log(this.state);
     const {
       watermark,
@@ -106,16 +106,14 @@ const SimpleWatermark = React.createClass({
           watermark: watermark.uri,
           ...props
       });
-      setTimeout(() => {
-        this.setState({...this.state, dialog:'none', writeProgress: 0.0});
-        ToastAndroid.show('Image saved.', ToastAndroid.SHORT);
-      }, 1000);
+      this.setState({...this.state, dialog:'none', writeProgress: 0.0});
+      ToastAndroid.show('Image saved.', ToastAndroid.SHORT);
     } catch (e) {
 
     }
-  },
+  }
 
-  launchImagePicker: async function() {
+  async launchImagePicker() {
     try {
       var images = await ImagePicker.launch(true);
       console.log(images);
@@ -123,9 +121,9 @@ const SimpleWatermark = React.createClass({
     } catch (e) {
       console.error(e);
     }
-  },
+  }
 
-  launchWatermarkPicker: async function() {
+  async launchWatermarkPicker() {
     try {
       var [watermark,] = await ImagePicker.launch(false);
       console.log(watermark);
@@ -133,23 +131,23 @@ const SimpleWatermark = React.createClass({
     } catch (e) {
       console.error(e);
     }
-  },
+  }
 
-  toggleTransformController: function() {
+  toggleTransformController() {
     const transformOn = !this.state.transformOn;
     this.setState({...this.state, transformOn});
-  },
+  }
 
-  renderDialog: function() {
+  renderDialog() {
     if (this.state.dialog === "onsave") {
       return <SaveDialog progress={this.state.writeProgress} />
     }
     else if (this.state.dialog === "onstart") {
       return <Welcome />
     }
-  },
+  }
 
-  renderTransformController: function() {
+  renderTransformController() {
     if (this.state.transformOn) {
       return (
         <TransformController
@@ -158,18 +156,17 @@ const SimpleWatermark = React.createClass({
           scale={this.state.scale}
           angle={this.state.angle}
           padding={this.state.padding}
-          onChangeOpacity={this._onOpacityUpdate}
-          onChangeScale={this._onScaleUpdate}
-          onChangeAngle={this._onAngleUpdate}
-          onChangePosition={this._onPositionUpdate}
-          onChangePadding={this._onPaddingUpdate}
+          onChangeOpacity={this._onOpacityUpdate.bind(this)}
+          onChangeScale={this._onScaleUpdate.bind(this)}
+          onChangeAngle={this._onAngleUpdate.bind(this)}
+          onChangePosition={this._onPositionUpdate.bind(this)}
+          onChangePadding={this._onPaddingUpdate.bind(this)}
           />
       );
     }
-  },
+  }
 
-  render: function() {
-
+  render() {
     return (
       <View style={styles.container} >
         <View style={styles.workspace} >
@@ -191,7 +188,7 @@ const SimpleWatermark = React.createClass({
       </View>
     );
   }
-});
+}
 
 class Welcome extends Component {
   render() {
