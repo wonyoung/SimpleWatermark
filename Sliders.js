@@ -3,26 +3,15 @@ import React, {
   Component,
   StyleSheet,
   View,
-  Text
+  Text,
+  PanResponder
 } from 'react-native';
 
-import { MKSlider } from 'react-native-material-kit';
+import Slider from 'react-native-slider';
 
-export default class Slider extends Component {
-  componentDidMount() {
-    this.refs.slider.value = this.props.value;
-  }
-
-  render() {
-    const {
-      value,
-      ...props
-    } = this.props;
-
-    return (
-      <MKSlider ref='slider' {...props} />
-    );
-  }
+const sliderProps = {
+  minimumTrackTintColor: '#AED581',
+  thumbTintColor: '#7CB342'
 }
 
 export class OpacityControl extends Component {
@@ -32,10 +21,11 @@ export class OpacityControl extends Component {
         <Text style={styles.values}>{this.props.opacity.toFixed(2)}</Text>
         <Slider
           style={styles.slider}
+          {...sliderProps}
           value={this.props.opacity}
-          min={0}
-          max={1}
-          onChange={this.props.onChangeOpacity}/>
+          minimumValue={0}
+          maximumValue={1}
+          onValueChange={this.props.onChangeOpacity}/>
       </View>
     );
   }
@@ -48,10 +38,11 @@ export class ScaleControl extends Component {
         <Text style={styles.values}>{this.props.scale.toFixed(2)}</Text>
         <Slider
           style={styles.slider}
+          {...sliderProps}
           value={this.props.scale}
-          min={0}
-          max={1}
-          onChange={this.props.onChangeScale}/>
+          minimumValue={0}
+          maximumValue={1}
+          onValueChange={this.props.onChangeScale}/>
       </View>
     );
   }
@@ -64,10 +55,11 @@ export class AngleControl extends Component {
         <Text style={styles.values}>{this.props.angle}° </Text>
         <Slider
           style={styles.slider}
-          value={this.props.angle}
-          min={0}
-          max={360}
-          onChange={this.props.onChangeAngle}/>
+          {...sliderProps}
+          progress={this.props.angle}
+          minimumValue={0}
+          maximumValue={360}
+          onValueChange={this.props.onChangeAngle}/>
       </View>
     );
   }
@@ -80,22 +72,28 @@ export class PaddingControl extends Component {
         <Text style={styles.values}>{this.props.padding.toFixed(2)}</Text>
         <Slider
           style={styles.slider}
+          {...sliderProps}
           value={this.props.padding}
-          min={0}
-          max={0.5}
-          onChange={this.props.onChangePadding}/>
+          minimumValue={0}
+          maximumValue={0.5}
+          onValueChange={this.props.onChangePadding}/>
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  slider_container: {
+    position: "absolute",
+  },
   slider: {
-    flex: 9
+    flex: 6,
+    marginHorizontal: 20
   },
   values: {
     flex: 1,
     alignSelf: 'center',
-    textAlign: 'right'
+    textAlign: 'right',
+    color: 'white'
   }
 });

@@ -124,5 +124,4 @@ dependencies {
     compile "com.facebook.react:react-native:0.20.+"
     compile "com.drewnoakes:metadata-extractor:2.8.1"
     compile project(':react-native-i18n')
-    compile project(':RNMaterialKit')
 }

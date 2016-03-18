@@ -3,7 +3,6 @@ package com.simplewatermark;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
-import com.github.xinthink.rnmk.ReactMaterialKitPackage;
 import com.i18n.reactnativei18n.ReactNativeI18n;
 
 import com.facebook.react.bridge.JavaScriptModule;
@@ -42,7 +41,6 @@ public class MainActivity extends ReactActivity {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
         new MainReactPackage(),
-        new ReactMaterialKitPackage(),
         new ReactNativeI18n(),
         new ReactPackage() {
           @Override
