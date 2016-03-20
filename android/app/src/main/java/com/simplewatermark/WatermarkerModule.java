@@ -1,6 +1,7 @@
 package com.simplewatermark;
 
 import android.os.Environment;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -167,6 +168,8 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     try {
       OutputStream os = new FileOutputStream(filename);
       output.compress(Bitmap.CompressFormat.JPEG, 100, os);
+      os.close();
+      contentsUpdate(filename);
     } catch (IOException e) {
         e.printStackTrace();
     }
@@ -174,6 +177,14 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     bg.recycle();
     fg.recycle();
     output.recycle();
+  }
+
+  private void contentsUpdate(final String filename) {
+    Intent mediascanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+    mediascanIntent.setData(Uri.fromFile(new File(filename)));
+    Activity activity = getCurrentActivity();
+
+    activity.sendBroadcast(mediascanIntent);
   }
 
   private int leftByPosition(final int position, final float padding, final int w1, final int w2) {
