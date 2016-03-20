@@ -24,7 +24,11 @@ export class TransformController extends Component {
             <PositionControl onChangePosition={this.props.onChangePosition} />
           </View>
           <View style={{flex:8}} >
-            <PaddingControl padding={this.props.padding} onChangePadding={this.props.onChangePadding} />
+            <PaddingControl
+              padding={this.props.padding}
+              xPadding={this.props.xPadding}
+              yPadding={this.props.yPadding}
+              onChangePadding={this.props.onChangePadding} />
           </View>
         </View>
       </View>

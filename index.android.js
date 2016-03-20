@@ -50,6 +50,8 @@ class SimpleWatermark extends Component {
       angle: 0,
       position: 0,
       padding: 0,
+      xPadding: 0,
+      yPadding: 0,
       left: 0,
       top: 0,
       writeProgress: 0.0,
@@ -80,8 +82,8 @@ class SimpleWatermark extends Component {
     this.setState({...this.state, position});
   }
 
-  _onPaddingUpdate(padding) {
-    this.setState({...this.state, padding})
+  _onPaddingUpdate(xPadding, yPadding) {
+    this.setState({...this.state, xPadding, yPadding, padding:xPadding});
   }
 
   showProgress(a) {
@@ -156,6 +158,8 @@ class SimpleWatermark extends Component {
           scale={this.state.scale}
           angle={this.state.angle}
           padding={this.state.padding}
+          xPadding={this.state.xPadding}
+          yPadding={this.state.yPadding}
           onChangeOpacity={this._onOpacityUpdate.bind(this)}
           onChangeScale={this._onScaleUpdate.bind(this)}
           onChangeAngle={this._onAngleUpdate.bind(this)}

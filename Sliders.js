@@ -68,15 +68,31 @@ export class AngleControl extends Component {
 export class PaddingControl extends Component {
   render() {
     return (
-      <View style={{flexDirection:'row'}}>
-        <Text style={styles.values}>{this.props.padding.toFixed(2)}</Text>
-        <Slider
-          style={styles.slider}
-          {...sliderProps}
-          value={this.props.padding}
-          minimumValue={0}
-          maximumValue={0.5}
-          onValueChange={this.props.onChangePadding}/>
+      <View >
+        <View style={{flexDirection:'row'}}>
+          <Text style={styles.values}>{this.props.xPadding.toFixed(2)}</Text>
+          <Slider
+            style={styles.slider}
+            {...sliderProps}
+            value={this.props.xPadding}
+            minimumValue={0}
+            maximumValue={0.5}
+            onValueChange={(xPadding) =>
+              this.props.onChangePadding(xPadding, this.props.yPadding)
+            } />
+        </View>
+        <View style={{flexDirection:'row'}}>
+          <Text style={styles.values}>{this.props.yPadding.toFixed(2)}</Text>
+          <Slider
+            style={styles.slider}
+            {...sliderProps}
+            value={this.props.yPadding}
+            minimumValue={0}
+            maximumValue={0.5}
+            onValueChange={(yPadding) =>
+              this.props.onChangePadding(this.props.xPadding, yPadding)
+            } />
+        </View>
       </View>
     );
   }
