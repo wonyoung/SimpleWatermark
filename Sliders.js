@@ -52,7 +52,7 @@ export class AngleControl extends Component {
   render() {
     return (
       <View style={{flexDirection:'row'}}>
-        <Text style={styles.values}>{this.props.angle}° </Text>
+        <Text style={styles.values}>{parseInt(this.props.angle)}° </Text>
         <Slider
           style={styles.slider}
           {...sliderProps}

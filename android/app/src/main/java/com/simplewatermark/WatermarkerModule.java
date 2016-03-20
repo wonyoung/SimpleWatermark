@@ -53,6 +53,8 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     final int top = options.getInt("top");
     final int position = options.getInt("position");
     final float padding = (float) options.getDouble("padding");
+    final float xPadding = (float) options.getDouble("xPadding");
+    final float yPadding = (float) options.getDouble("yPadding");
 
     final String path = getImagePathOrCreate("watermark");
 
@@ -62,7 +64,7 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
         for (int i = 0; i < images.size(); i++) {
           String background = images.getString(i);
           String filename = path + "/" + (new File(background)).getName() + ".jpg";
-          flattenImage(filename, background, watermark, scale, alpha, angle, left, top, position, padding);
+          flattenImage(filename, background, watermark, scale, alpha, angle, left, top, position, xPadding, yPadding);
           WritableMap map = Arguments.createMap();
           map.putDouble("progress", (double)(i+1) / images.size());
           map.putInt("total", images.size());
@@ -102,7 +104,8 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
                             final String foregroundImagePath,
                             final float scale, final float alpha,
                             final int angle, int left, int top,
-                            final int position, final float padding) {
+                            final int position,
+                            final float xPadding, final float yPadding) {
     Activity activity = getCurrentActivity();
     ContentResolver cr = activity.getContentResolver();
 
@@ -155,8 +158,8 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     matrix.postScale(minScale, minScale);
 
     if (position > 0) {
-      left = leftByPosition(position, padding, (int) (fg.getWidth()*scale*minScale), outputWidth);
-      top = topByPosition(position, padding, (int) (fg.getHeight()*scale*minScale), outputHeight);
+      left = leftByPosition(position, xPadding, (int) (fg.getWidth()*scale*minScale), outputWidth);
+      top = topByPosition(position, yPadding, (int) (fg.getHeight()*scale*minScale), outputHeight);
     }
 
     Bitmap output = Bitmap.createBitmap(outputWidth, outputHeight, Bitmap.Config.ARGB_8888);

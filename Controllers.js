@@ -19,13 +19,12 @@ export class TransformController extends Component {
         <OpacityControl opacity={this.props.opacity} onChangeOpacity={this.props.onChangeOpacity} />
         <ScaleControl scale={this.props.scale} onChangeScale={this.props.onChangeScale} />
         <AngleControl angle={this.props.angle} onChangeAngle={this.props.onChangeAngle} />
-        <View style={{flexDirection:'row'}} >
+        <View style={{flexDirection:'row', alignItems:'center'}} >
           <View style={{flex:2}} >
             <PositionControl onChangePosition={this.props.onChangePosition} />
           </View>
           <View style={{flex:8}} >
             <PaddingControl
-              padding={this.props.padding}
               xPadding={this.props.xPadding}
               yPadding={this.props.yPadding}
               onChangePadding={this.props.onChangePadding} />

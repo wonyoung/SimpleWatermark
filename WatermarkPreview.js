@@ -52,7 +52,7 @@ export default class WatermarkPreview extends Component {
     const wm = this.imageWithAspectRatio(this.props.watermark, bg);
     const watermarkSource = {uri:wm.uri};
     let {width:wWidth, height:wHeight} = wm;
-    let {angle: rotate, scale, position, padding} = this.props;
+    let {angle: rotate, scale, position, xPadding, yPadding} = this.props;
     let {left: translateX, top: translateY} = this.props;
 
     wWidth = wWidth * scale;
@@ -61,19 +61,19 @@ export default class WatermarkPreview extends Component {
     const hDiff = height - wHeight;
     switch(position) {
       case 1:
-        translateX = 0 + padding*wDiff;
-        translateY = 0 + padding*hDiff;
+        translateX = 0 + xPadding*wDiff;
+        translateY = 0 + yPadding*hDiff;
         break;
       case 2:
         translateX = wDiff / 2;
-        translateY = 0 + padding*hDiff;
+        translateY = 0 + yPadding*hDiff;
         break;
       case 3:
-        translateX = wDiff - padding*wDiff;
-        translateY = 0 + padding*hDiff;
+        translateX = wDiff - xPadding*wDiff;
+        translateY = 0 + yPadding*hDiff;
         break;
       case 4:
-        translateX = 0 + padding*wDiff;
+        translateX = 0 + xPadding*wDiff;
         translateY = hDiff / 2;
         break;
       case 5:
@@ -81,20 +81,20 @@ export default class WatermarkPreview extends Component {
         translateY = hDiff / 2;
         break;
       case 6:
-        translateX = wDiff - padding*wDiff;
+        translateX = wDiff - xPadding*wDiff;
         translateY = hDiff / 2;
         break;
       case 7:
-        translateX = 0 + padding*hDiff;
-        translateY = hDiff - padding*hDiff;
+        translateX = 0 + xPadding*wDiff;
+        translateY = hDiff - yPadding*hDiff;
         break;
       case 8:
         translateX = wDiff / 2;
-        translateY = hDiff - padding*hDiff;
+        translateY = hDiff - yPadding*hDiff;
         break;
       case 9:
-        translateX = wDiff - padding*wDiff;
-        translateY = hDiff - padding*hDiff;
+        translateX = wDiff - xPadding*wDiff;
+        translateY = hDiff - yPadding*hDiff;
         break;
     }
     rotate = rotate+'deg';
