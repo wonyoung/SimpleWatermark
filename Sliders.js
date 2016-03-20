@@ -76,7 +76,7 @@ export class PaddingControl extends Component {
             {...sliderProps}
             value={this.props.xPadding}
             minimumValue={0}
-            maximumValue={0.5}
+            maximumValue={1.0}
             onValueChange={(xPadding) =>
               this.props.onChangePadding(xPadding, this.props.yPadding)
             } />
@@ -88,7 +88,7 @@ export class PaddingControl extends Component {
             {...sliderProps}
             value={this.props.yPadding}
             minimumValue={0}
-            maximumValue={0.5}
+            maximumValue={1.0}
             onValueChange={(yPadding) =>
               this.props.onChangePadding(this.props.xPadding, yPadding)
             } />

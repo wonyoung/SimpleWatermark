@@ -48,7 +48,7 @@ class SimpleWatermark extends Component {
       opacity: 0.8,
       scale: 0.5,
       angle: 0.0,
-      position: 0,
+      position: 1,
       xPadding: 0,
       yPadding: 0,
       left: 0,
@@ -170,12 +170,18 @@ class SimpleWatermark extends Component {
   }
 
   render() {
+    const {
+      transformOn,
+      ...props
+    } = this.state;
+
     return (
       <View style={styles.container} >
         <View style={styles.workspace} >
           <WatermarkPreview
-            onChangePosition={this._onPositionUpdate}
-            {...this.state}
+            onChangePosition={this._onPaddingUpdate.bind(this)}
+            movePosition={transformOn}
+            {...props}
             />
           { this.renderTransformController() }
         </View>

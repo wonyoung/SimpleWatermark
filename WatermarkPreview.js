@@ -27,6 +27,38 @@ export default class WatermarkPreview extends Component {
     this.setState({...this.state, layout})
   }
 
+  componentWillMount() {
+    this._panResponder = PanResponder.create({
+      onStartShouldSetPanResponder: (evt, gestureState) => this.props.movePosition,
+      onMoveShouldSetPanResponder: (evt, gestureState) => this.props.movePosition,
+      onPanResponderGrant: this._handlePanResponderGrant.bind(this),
+      onPanResponderMove: this._handlePanResponderMove.bind(this),
+      onPanResponderRelease: this._handlePanResponderEnd.bind(this),
+      onPanResponderTerminate: this._handlePanResponderEnd.bind(this),
+    });
+  }
+
+  _handlePanResponderGrant(evt, gestureState) {
+    this.xPaddingStart = this.props.xPadding;
+    this.yPaddingStart = this.props.yPadding;
+    const bg = this.imageWithAspectRatio(this.props.images[0], this.state.layout);
+    this.width = bg.width;
+    this.height = bg.height;
+  }
+
+  _handlePanResponderMove(evt, {dx, dy}) {
+    if (this.props.movePosition) {
+      const x = this.xPaddingStart + dx/this.width;
+      const y = this.yPaddingStart + dy/this.height;
+      console.log(dx, dy, x, y)
+      this.props.onChangePosition(x, y);
+    }
+  }
+
+  _handlePanResponderEnd(evt, gestureState) {
+
+  }
+
   imageWithAspectRatio(src, layout) {
     const {height:layoutHeight, width:layoutWidth} = layout;
     const rotated = src.orientation >= 5;
@@ -114,6 +146,7 @@ export default class WatermarkPreview extends Component {
       <View
         style={styles.container}
         onLayout={this._onLayout.bind(this)}
+        {...this._panResponder.panHandlers}
         >
         <Image
           source={bgsource}

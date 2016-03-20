@@ -20,9 +20,6 @@ export class TransformController extends Component {
         <ScaleControl scale={this.props.scale} onChangeScale={this.props.onChangeScale} />
         <AngleControl angle={this.props.angle} onChangeAngle={this.props.onChangeAngle} />
         <View style={{flexDirection:'row', alignItems:'center'}} >
-          <View style={{flex:2}} >
-            <PositionControl onChangePosition={this.props.onChangePosition} />
-          </View>
           <View style={{flex:8}} >
             <PaddingControl
               xPadding={this.props.xPadding}

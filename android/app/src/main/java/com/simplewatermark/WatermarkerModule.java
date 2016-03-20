@@ -52,7 +52,6 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     final int left = options.getInt("left");
     final int top = options.getInt("top");
     final int position = options.getInt("position");
-    final float padding = (float) options.getDouble("padding");
     final float xPadding = (float) options.getDouble("xPadding");
     final float yPadding = (float) options.getDouble("yPadding");
 
