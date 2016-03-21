@@ -5,9 +5,10 @@ import React, {
   StyleSheet,
   Text,
   Image,
-  ViewPagerAndroid,
   View
 } from 'react-native';
+
+import ViewPagerAndroid from './ViewPagerWorkaround';
 
 export default class WatermarkPreview extends Component {
     render() {

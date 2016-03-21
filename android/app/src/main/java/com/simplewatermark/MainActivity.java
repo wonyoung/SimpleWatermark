@@ -4,6 +4,7 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.i18n.reactnativei18n.ReactNativeI18n;
+import com.simplewatermark.workarounds.ReactViewPagerManager;
 
 import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.NativeModule;
@@ -58,7 +59,9 @@ public class MainActivity extends ReactActivity {
 
           @Override
           public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
-            return Collections.emptyList();
+            return Arrays.<ViewManager>asList(
+              new ReactViewPagerManager()
+            );
           }
         }
       );
