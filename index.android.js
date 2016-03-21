@@ -25,11 +25,6 @@ const testimages = {
       height: 1200,
       uri: "file:///data/user/0/com.simplewatermark/cache/photo-image%3A11",
       width: 1600
-    },
-    {
-      height: 1424,
-      uri: "file://"+"/storage/emulated/0/DCIM/mountain-2.jpg",
-      width: 2144,
     }
   ],
   watermark: {
@@ -81,6 +76,8 @@ class SimpleWatermark extends Component {
   }
 
   _onPaddingUpdate(xPadding, yPadding) {
+    xPadding = Math.max(Math.min(xPadding, 0.5), 0);
+    yPadding = Math.max(Math.min(yPadding, 0.5), 0);
     this.setState({...this.state, xPadding, yPadding});
   }
 
