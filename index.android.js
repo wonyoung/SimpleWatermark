@@ -43,8 +43,8 @@ class SimpleWatermark extends Component {
       opacity: 0.8,
       scale: 0.5,
       angle: 0.0,
-      xPadding: 0,
-      yPadding: 0,
+      xPadding: 0.5,
+      yPadding: 0.5,
       writeProgress: 0.0,
       dialog: "onstart",
       transformOn: false

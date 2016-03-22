@@ -56,7 +56,7 @@ export class AngleControl extends Component {
         <Slider
           style={styles.slider}
           {...sliderProps}
-          progress={this.props.angle}
+          value={this.props.angle}
           minimumValue={0}
           maximumValue={360}
           onValueChange={this.props.onChangeAngle}/>
