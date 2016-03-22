@@ -6,7 +6,8 @@ import org.apache.sanselan.common.IImageMetadata;
 import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
 import org.apache.sanselan.formats.tiff.TiffField;
 import org.apache.sanselan.formats.tiff.constants.ExifTagConstants;
-import org.apache.sanselan.formats.tiff.constants.TiffTagConstants;
+import org.apache.sanselan.formats.tiff.TiffImageData;
+import org.apache.sanselan.formats.tiff.JpegImageData;
 
 import org.apache.sanselan.formats.tiff.TiffImageMetadata;
 import org.apache.sanselan.formats.jpeg.exifRewrite.ExifRewriter;
@@ -18,7 +19,6 @@ import java.io.FileOutputStream;
 import java.io.BufferedOutputStream;
 
 import java.io.InputStream;
-import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -79,17 +79,23 @@ public class Exif {
     try {
       outputSet = exif.getOutputSet();
       outputSet.removeField(ExifTagConstants.EXIF_TAG_ORIENTATION);
-      // outputSet.removeField(TiffTagConstants.TIFF_TAG_ORIENTATION);
+
+      for (Object obj : outputSet.getDirectories()) {
+        TiffOutputDirectory directory = (TiffOutputDirectory) obj;
+        JpegImageData jpeg = directory.getRawJpegImageData();
+        if (jpeg != null) {
+          directory.setJpegImageData(null);
+        }
+
+        TiffImageData tiff = directory.getRawTiffImageData();
+        if (tiff != null) {
+          directory.setTiffImageData(null);
+        }
+      }
     } catch (ImageWriteException e) {
       return new TiffOutputSet();
     }
 
-    // try {
-    //   final TiffOutputDirectory exifDirectory = outputSet.getOrCreateExifDirectory();
-    //   exifDirectory.removeField(ExifTagConstants.EXIF_TAG_ORIENTATION);
-    //   exifDirectory.removeField(TiffTagConstants.TIFF_TAG_ORIENTATION);
-    // } catch (ImageWriteException e) {
-    // }
     return outputSet;
   }
 
