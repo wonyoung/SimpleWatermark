@@ -49,9 +49,6 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     final float scale = (float) options.getDouble("scale");
     final float alpha = (float) options.getDouble("opacity");
     final int angle = options.getInt("angle");
-    final int left = options.getInt("left");
-    final int top = options.getInt("top");
-    final int position = options.getInt("position");
     final float xPadding = (float) options.getDouble("xPadding");
     final float yPadding = (float) options.getDouble("yPadding");
 
@@ -63,7 +60,7 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
         for (int i = 0; i < images.size(); i++) {
           String background = images.getString(i);
           String filename = path + "/" + (new File(background)).getName() + ".jpg";
-          flattenImage(filename, background, watermark, scale, alpha, angle, left, top, position, xPadding, yPadding);
+          flattenImage(filename, background, watermark, scale, alpha, angle, xPadding, yPadding);
           WritableMap map = Arguments.createMap();
           map.putDouble("progress", (double)(i+1) / images.size());
           map.putInt("total", images.size());
@@ -102,8 +99,7 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
                             final String backgroundImagePath,
                             final String foregroundImagePath,
                             final float scale, final float alpha,
-                            final int angle, int left, int top,
-                            final int position,
+                            final int angle,
                             final float xPadding, final float yPadding) {
     Activity activity = getCurrentActivity();
     ContentResolver cr = activity.getContentResolver();
@@ -156,10 +152,9 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
 
     matrix.postScale(minScale, minScale);
 
-    if (position > 0) {
-      left = leftByPosition(position, xPadding, (int) (fg.getWidth()*scale*minScale), outputWidth);
-      top = topByPosition(position, yPadding, (int) (fg.getHeight()*scale*minScale), outputHeight);
-    }
+
+    int left = position(xPadding, (int) (fg.getWidth()*scale*minScale), outputWidth);
+    int top = position(yPadding, (int) (fg.getHeight()*scale*minScale), outputHeight);
 
     Bitmap output = Bitmap.createBitmap(outputWidth, outputHeight, Bitmap.Config.ARGB_8888);
     Canvas canvas = new Canvas(output);
@@ -189,16 +184,8 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     activity.sendBroadcast(mediascanIntent);
   }
 
-  private int leftByPosition(final int position, final float padding, final int w1, final int w2) {
-    int x = (position - 1) % 3;
-    int diff = w2 - w1;
-    return diff * x / 2 + (int) ((1-x)*diff*padding);
-  }
-
-  private int topByPosition(final int position, final float padding, final int h1, final int h2) {
-    int y = (position - 1) / 3;
-    int diff = h2 - h1;
-    return diff * y / 2 + (int) ((1-y)*diff*padding);
+  private int position(final float padding, final int s1, final int s2) {
+    return (int) (s2*padding - s1/2);
   }
 
   private Matrix applyOrientation(Matrix m, final int orientation, final Bitmap b) {

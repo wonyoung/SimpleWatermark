@@ -10,7 +10,6 @@ import React, {
 } from 'react-native';
 
 import { OpacityControl, ScaleControl, AngleControl, PaddingControl } from './Sliders';
-import PositionControl from './PositionControl';
 
 export class TransformController extends Component {
   render() {
@@ -20,10 +19,7 @@ export class TransformController extends Component {
         <ScaleControl scale={this.props.scale} onChangeScale={this.props.onChangeScale} />
         <AngleControl angle={this.props.angle} onChangeAngle={this.props.onChangeAngle} />
         <View style={{flexDirection:'row', alignItems:'center'}} >
-          <View style={{flex:2}} >
-            <PositionControl onChangePosition={this.props.onChangePosition} />
-          </View>
-          <View style={{flex:8}} >
+          <View style={{flex:1}} >
             <PaddingControl
               xPadding={this.props.xPadding}
               yPadding={this.props.yPadding}

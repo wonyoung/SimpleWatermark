@@ -58,8 +58,8 @@ class WatermarkPreviewItem extends Component {
 
   componentWillMount() {
     this._panResponder = PanResponder.create({
-      onStartShouldSetPanResponder: (evt, gestureState) => this.props.movePosition,
-      onMoveShouldSetPanResponder: (evt, gestureState) => this.props.movePosition,
+      onStartShouldSetPanResponder: (evt, gestureState) => this.props.isPannable,
+      onMoveShouldSetPanResponder: (evt, gestureState) => this.props.isPannable,
       onPanResponderGrant: this._handlePanResponderGrant.bind(this),
       onPanResponderMove: this._handlePanResponderMove.bind(this),
       onPanResponderRelease: this._handlePanResponderEnd.bind(this),
@@ -81,51 +81,15 @@ class WatermarkPreviewItem extends Component {
     const wm = this.imageWithAspectRatio(props.watermark, bg);
     const watermarkSource = {uri:wm.uri};
     let {width:wWidth, height:wHeight} = wm;
-    let {angle: rotate, scale, position, xPadding, yPadding} = props;
+    let {angle: rotate, scale, xPadding, yPadding} = props;
     let {left: translateX, top: translateY} = props;
 
     wWidth = wWidth * scale;
     wHeight = wHeight * scale;
     const wDiff = width - wWidth;
     const hDiff = height - wHeight;
-    switch(position) {
-      case 1:
-        translateX = 0 + xPadding*wDiff;
-        translateY = 0 + yPadding*hDiff;
-        break;
-      case 2:
-        translateX = wDiff / 2;
-        translateY = 0 + yPadding*hDiff;
-        break;
-      case 3:
-        translateX = wDiff - xPadding*wDiff;
-        translateY = 0 + yPadding*hDiff;
-        break;
-      case 4:
-        translateX = 0 + xPadding*wDiff;
-        translateY = hDiff / 2;
-        break;
-      case 5:
-        translateX = wDiff / 2;
-        translateY = hDiff / 2;
-        break;
-      case 6:
-        translateX = wDiff - xPadding*wDiff;
-        translateY = hDiff / 2;
-        break;
-      case 7:
-        translateX = 0 + xPadding*wDiff;
-        translateY = hDiff - yPadding*hDiff;
-        break;
-      case 8:
-        translateX = wDiff / 2;
-        translateY = hDiff - yPadding*hDiff;
-        break;
-      case 9:
-        translateX = wDiff - xPadding*wDiff;
-        translateY = hDiff - yPadding*hDiff;
-        break;
-    }
+    translateX = xPadding*width - wWidth/2;
+    translateY = yPadding*height - wHeight/2;
     rotate = rotate+'deg';
     const transform = [
       {rotate},
@@ -162,9 +126,9 @@ class WatermarkPreviewItem extends Component {
   }
 
   _handlePanResponderMove(evt, {dx, dy}) {
-    if (this.props.movePosition) {
-      const x = this.xPaddingStart + dx/this.xdiff;
-      const y = this.yPaddingStart + dy/this.ydiff;
+    if (this.props.isPannable) {
+      const x = this.xPaddingStart + dx/this.bg.layout.width;
+      const y = this.yPaddingStart + dy/this.bg.layout.height;
       console.log(dx, dy, x, y)
       this.props.onChangePosition(x, y);
     }

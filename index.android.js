@@ -43,11 +43,8 @@ class SimpleWatermark extends Component {
       opacity: 0.8,
       scale: 0.5,
       angle: 0.0,
-      position: 1,
       xPadding: 0,
       yPadding: 0,
-      left: 0,
-      top: 0,
       writeProgress: 0.0,
       dialog: "onstart",
       transformOn: false
@@ -71,13 +68,9 @@ class SimpleWatermark extends Component {
     this.setState({...this.state, angle});
   }
 
-  _onPositionUpdate(position) {
-    this.setState({...this.state, position});
-  }
-
   _onPaddingUpdate(xPadding, yPadding) {
-    xPadding = Math.max(Math.min(xPadding, 0.5), 0);
-    yPadding = Math.max(Math.min(yPadding, 0.5), 0);
+    xPadding = Math.max(Math.min(xPadding, 1), 0);
+    yPadding = Math.max(Math.min(yPadding, 1), 0);
     this.setState({...this.state, xPadding, yPadding});
   }
 
@@ -159,7 +152,6 @@ class SimpleWatermark extends Component {
           onChangeOpacity={this._onOpacityUpdate.bind(this)}
           onChangeScale={this._onScaleUpdate.bind(this)}
           onChangeAngle={this._onAngleUpdate.bind(this)}
-          onChangePosition={this._onPositionUpdate.bind(this)}
           onChangePadding={this._onPaddingUpdate.bind(this)}
           />
       );
@@ -177,7 +169,7 @@ class SimpleWatermark extends Component {
         <View style={styles.workspace} >
           <WatermarkPreview
             onChangePosition={this._onPaddingUpdate.bind(this)}
-            movePosition={transformOn}
+            isPannable={transformOn}
             {...props}
             />
           { this.renderTransformController() }
