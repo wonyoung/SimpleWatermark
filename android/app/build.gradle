@@ -116,12 +116,17 @@ android {
             }
         }
     }
+
+    packagingOptions {
+      exclude 'META-INF/LICENSE'
+      exclude 'META-INF/NOTICE'
+    }
 }
 
 dependencies {
     compile fileTree(dir: "libs", include: ["*.jar"])
     compile "com.android.support:appcompat-v7:23.0.1"
     compile "com.facebook.react:react-native:0.20.+"
-    compile "com.drewnoakes:metadata-extractor:2.8.1"
+    compile "org.apache.sanselan:sanselan:0.97-incubator"
     compile project(':react-native-i18n')
 }

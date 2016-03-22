@@ -126,7 +126,8 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     } catch (IOException e) {
     }
     Matrix bgMatrix = new Matrix();
-    int orientation = Exif.getOrientation(bgis);
+    Exif exif = Exif.createInstance(bgis);
+    int orientation = exif.getOrientation();
     applyOrientation(bgMatrix, orientation, bg);
 
     int outputWidth, outputHeight;
@@ -141,7 +142,7 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
 
 
     Matrix matrix = new Matrix();
-    applyOrientation(matrix, Exif.getOrientation(fgis), fg);
+    applyOrientation(matrix, Exif.createInstance(fgis).getOrientation(), fg);
 
     matrix.postRotate(angle, fg.getWidth()/2, fg.getHeight()/2);
     matrix.postScale(scale, scale);
@@ -166,6 +167,8 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
       OutputStream os = new FileOutputStream(filename);
       output.compress(Bitmap.CompressFormat.JPEG, 100, os);
       os.close();
+
+      exif.copyTo(filename);
       contentsUpdate(filename);
     } catch (IOException e) {
         e.printStackTrace();

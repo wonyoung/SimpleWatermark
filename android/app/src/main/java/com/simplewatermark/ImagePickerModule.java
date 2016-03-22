@@ -134,7 +134,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
     try {
       is.close();
       is = contentResolver.openInputStream(uri);
-      orientation = Exif.getOrientation(is);
+      orientation = Exif.createInstance(is).getOrientation();
     } catch (FileNotFoundException e) {
     } catch (IOException e) {
     }
