@@ -14,7 +14,6 @@ import React, {
 } from 'react-native';
 
 import I18n from 'react-native-i18n';
-const { RNI18n } = NativeModules;
 
 export class WatermarkTools extends Component {
   render() {
@@ -59,16 +58,6 @@ export class UpperTools extends Component {
     );
   }
 }
-
-I18n.fallbacks = true;
-I18n.translations = {
-  en: {
-    save: 'Save  '
-  },
-  ko: {
-    save: '저장 '
-  }
-};
 
 const styles = StyleSheet.create({
   button_container: {

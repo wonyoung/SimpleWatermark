@@ -47,6 +47,7 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     final ReadableArray images = options.getArray("images");
     final String watermark = options.getString("watermark");
     final ReadableMap transform = options.getMap("transform");
+    final String savePath = options.getString("savePath");
 
     final float scale = (float) transform.getDouble("scale");
     final float alpha = (float) transform.getDouble("opacity");
@@ -54,7 +55,7 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
     final float xPadding = (float) transform.getDouble("xPadding");
     final float yPadding = (float) transform.getDouble("yPadding");
 
-    final String path = getImagePathOrCreate("watermark");
+    final String path = getImagePathOrCreate(savePath);
 
     Thread t = new Thread() {
       @Override

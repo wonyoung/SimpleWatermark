@@ -6,10 +6,14 @@
 import React, {
   Component,
   View,
-  StyleSheet
+  Text,
+  TextInput,
+  StyleSheet,
+  NativeModules
 } from 'react-native';
 
 import ProgressBar from 'ProgressBarAndroid';
+import I18n from 'react-native-i18n';
 
 export class SaveDialog extends Component {
   render() {
@@ -18,6 +22,21 @@ export class SaveDialog extends Component {
         <View style={styles.save_dialog_bg} />
         <ProgressBar
           progress={this.props.progress} />
+      </View>
+    );
+  }
+}
+
+export class InputTextDialog extends Component {
+  render() {
+    return (
+      <View style={styles.inputTextDialog} >
+        <Text>{I18n.t('savePath')}</Text>
+        <TextInput
+          style={styles.inputText}
+          onChangeText={this.props.onChangeText}
+          value={this.props.text}
+          />
       </View>
     );
   }
@@ -41,5 +60,19 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'black',
     opacity: 0.6
+  },
+  inputTextDialog: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'white'
+  },
+  inputText: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1
   }
 });

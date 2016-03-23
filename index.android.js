@@ -13,10 +13,11 @@ import React, {
   StyleSheet,
 } from 'react-native';
 
+import I18n from 'react-native-i18n';
 const { Watermarker, ImagePicker } = React.NativeModules;
 import WatermarkPreview from './WatermarkPreview';
 import { WatermarkTools, UpperTools } from './WatermarkTools';
-import { SaveDialog } from './Dialogs';
+import { SaveDialog, InputTextDialog } from './Dialogs';
 import { TransformController } from './Controllers';
 
 class SimpleWatermark extends Component {
@@ -34,7 +35,8 @@ class SimpleWatermark extends Component {
       },
       writeProgress: 0.0,
       dialog: "onstart",
-      transformOn: false
+      transformOn: false,
+      savePath: "/watermark"
     };
   }
 
@@ -68,6 +70,10 @@ class SimpleWatermark extends Component {
     });
   }
 
+  _onSavePathUpdate(savePath) {
+    this.setState({...this.state, savePath});
+  }
+
   showProgress(a) {
     this.setState({...this.state, writeProgress: a.progress}, () => {
       console.log('progress', this.state.writeProgress);
@@ -91,7 +97,7 @@ class SimpleWatermark extends Component {
           ...props
       });
       this.setState({...this.state, dialog:'none', writeProgress: 0.0});
-      ToastAndroid.show('Image saved.', ToastAndroid.SHORT);
+      ToastAndroid.show(I18n.t('saved'), ToastAndroid.SHORT);
     } catch (e) {
 
     }
@@ -188,6 +194,20 @@ class Welcome extends Component {
   }
 }
 
+I18n.fallbacks = true;
+I18n.translations = {
+  en: {
+    save: 'Save  ',
+    savePath: 'Save path ',
+    saved: 'Saved. '
+  },
+  ko: {
+    save: '저장 ',
+    savePath: '저장 위치 ',
+    saved: '저장되었습니다. '
+  }
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -210,7 +230,7 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
-    backgroundColor: 'white',
+    backgroundColor: 'lightblue',
     alignItems: 'center',
     justifyContent: 'center',
   }
