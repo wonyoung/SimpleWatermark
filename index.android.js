@@ -74,6 +74,14 @@ class SimpleWatermark extends Component {
     this.setState({...this.state, savePath});
   }
 
+  setSavePathDialog() {
+    this.setState({...this.state, dialog: 'savepath'});
+  }
+
+  closeDialog() {
+    this.setState({...this.state, dialog: 'none'});
+  }
+
   showProgress(a) {
     this.setState({...this.state, writeProgress: a.progress}, () => {
       console.log('progress', this.state.writeProgress);
@@ -135,6 +143,16 @@ class SimpleWatermark extends Component {
     else if (this.state.dialog === "onstart") {
       return <Welcome />
     }
+    else if (this.state.dialog === "savepath") {
+      return (
+        <InputTextDialog
+          text={this.state.savePath}
+          onChangeText={this._onSavePathUpdate.bind(this)}
+          onExit={this.closeDialog.bind(this)}
+          />
+      );
+
+    }
   }
 
   renderTransformController() {
@@ -176,6 +194,7 @@ class SimpleWatermark extends Component {
         <UpperTools
           save={this.shouldSave()}
           onSave={() => this.export()}
+          onSavePathSelected={() => this.setSavePathDialog()}
           />
         {this.renderDialog()}
       </View>

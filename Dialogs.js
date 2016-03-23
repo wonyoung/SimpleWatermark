@@ -9,18 +9,19 @@ import React, {
   Text,
   TextInput,
   StyleSheet,
+  TouchableWithoutFeedback,
+  ProgressBarAndroid,
   NativeModules
 } from 'react-native';
 
-import ProgressBar from 'ProgressBarAndroid';
 import I18n from 'react-native-i18n';
 
 export class SaveDialog extends Component {
   render() {
     return (
-      <View style={styles.save_dialog} >
-        <View style={styles.save_dialog_bg} />
-        <ProgressBar
+      <View style={styles.dialog} >
+        <View style={styles.dialog_bg} />
+        <ProgressBarAndroid
           progress={this.props.progress} />
       </View>
     );
@@ -30,20 +31,24 @@ export class SaveDialog extends Component {
 export class InputTextDialog extends Component {
   render() {
     return (
-      <View style={styles.inputTextDialog} >
-        <Text>{I18n.t('savePath')}</Text>
-        <TextInput
-          style={styles.inputText}
-          onChangeText={this.props.onChangeText}
-          value={this.props.text}
-          />
-      </View>
+      <TouchableWithoutFeedback onPress={this.props.onExit}>
+        <View style={styles.dialog} >
+          <View style={styles.inputTextDialog} >
+            <Text>{I18n.t('savePath')}</Text>
+            <TextInput
+              style={styles.inputText}
+              onChangeText={this.props.onChangeText}
+              value={this.props.text}
+              />
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  save_dialog: {
+  dialog: {
     position: 'absolute',
     left: 0,
     right: 0,
@@ -52,7 +57,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  save_dialog_bg: {
+  dialog_bg: {
     position: 'absolute',
     left: 0,
     right: 0,

@@ -10,7 +10,8 @@ import React, {
   View,
   NativeModules,
   StyleSheet,
-  TouchableOpacity
+  TouchableOpacity,
+  ToolbarAndroid
 } from 'react-native';
 
 import I18n from 'react-native-i18n';
@@ -43,18 +44,35 @@ export class WatermarkTools extends Component {
 }
 
 export class UpperTools extends Component {
+  _onActionSelected(position) {
+    if (position === 0) {
+      this.props.onSave();
+    }
+    else if (position === 1) {
+      this.props.onSavePathSelected && this.props.onSavePathSelected();
+    }
+  }
+
   render() {
-    const props = (this.props.save) ? {
-      style:styles.button_save,
-      onPress: this.props.onSave
-    }:{ style:styles.button_save_disabled };
+    let actions = [];
+    const offset = this.props.save ? 0:1;
+    if (this.props.save) {
+      actions.push({
+        title: I18n.t('save'),
+        show: 'always',
+        showWithText: true
+      });
+    }
+    actions.push({
+      title: I18n.t('savePath'),
+      show: 'never'
+    });
+
     return (
-      <View
-        style={styles.upper_container} >
-        <Text
-          {...props}
-          >{I18n.t('save')}</Text>
-      </View>
+      <ToolbarAndroid
+        style={styles.toolbar}
+        actions={actions}
+        onActionSelected={(position) => this._onActionSelected(position + offset)} />
     );
   }
 }
@@ -69,24 +87,11 @@ const styles = StyleSheet.create({
     margin: 8,
     padding: 4
   },
-  upper_container: {
-    top:0,
-    right:0,
+  toolbar: {
     position: 'absolute',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  button_save: {
-    margin: 16,
-    padding: 4,
-    color: 'white',
-    fontSize: 16
-  },
-  button_save_disabled: {
-    margin: 16,
-    padding: 4,
-    color: 'gray',
-    fontSize: 16
-  },
-
+    top:0,
+    left:0,
+    right:0,
+    height: 56,
+  }
 });
