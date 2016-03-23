@@ -45,12 +45,15 @@ export class WatermarkTools extends Component {
 
 export class UpperTools extends Component {
   render() {
+    const props = (this.props.save) ? {
+      style:styles.button_save,
+      onPress: this.props.onSave
+    }:{ style:styles.button_save_disabled };
     return (
       <View
         style={styles.upper_container} >
         <Text
-          style={styles.button_save}
-          onPress={this.props.onSave}
+          {...props}
           >{I18n.t('save')}</Text>
       </View>
     );
@@ -89,5 +92,12 @@ const styles = StyleSheet.create({
     padding: 4,
     color: 'white',
     fontSize: 16
-  }
+  },
+  button_save_disabled: {
+    margin: 16,
+    padding: 4,
+    color: 'gray',
+    fontSize: 16
+  },
+
 });

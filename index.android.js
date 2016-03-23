@@ -21,16 +21,8 @@ import { TransformController } from './Controllers';
 
 const testimages = {
   images: [
-    {
-      height: 1200,
-      uri: "file:///data/user/0/com.simplewatermark/cache/photo-image%3A11",
-      width: 1600
-    }
   ],
   watermark: {
-    height: 512,
-    uri: "content://com.android.externalstorage.documents/document/primary%3ADCIM%2F624dc72b6deef6abddf29031c1ac7224.png",
-    width: 512
   }
 };
 
@@ -38,8 +30,8 @@ class SimpleWatermark extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      watermark: testimages.watermark,
-      images: testimages.images,
+      watermark: {},
+      images: [],
       opacity: 0.8,
       scale: 0.5,
       angle: 0.0,
@@ -49,6 +41,10 @@ class SimpleWatermark extends Component {
       dialog: "onstart",
       transformOn: false
     };
+  }
+
+  shouldSave() {
+    return this.state.watermark.uri && this.state.images.length > 0;
   }
 
   componentDidMount() {
@@ -180,6 +176,7 @@ class SimpleWatermark extends Component {
           onToolsToggle={() => this.toggleTransformController()}
           />
         <UpperTools
+          save={this.shouldSave()}
           onSave={() => this.export()}
           />
         {this.renderDialog()}
