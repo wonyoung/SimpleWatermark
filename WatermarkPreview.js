@@ -74,46 +74,24 @@ class WatermarkPreviewItem extends Component {
   }
 
   _updatePositions(props, state) {
-    const bg = this.imageWithAspectRatio(props.image, state.layout);
-    const bgsource = {uri:bg.uri};
-    const {width, height, top, left} = bg;
+    this.bg = this.imageWithAspectRatio(props.image, state.layout);
+    this.wm = this.imageWithAspectRatio(props.watermark, this.bg.layout);
 
-    const wm = this.imageWithAspectRatio(props.watermark, bg);
-    const watermarkSource = {uri:wm.uri};
-    let {width:wWidth, height:wHeight} = wm;
-    let {angle: rotate, scale, xPadding, yPadding} = props;
-    let {left: translateX, top: translateY} = props;
+    const {width: bgw, height: bgh} = this.bg.layout;
+    const {scale, xPadding, yPadding} = props.transform;
 
-    wWidth = wWidth * scale;
-    wHeight = wHeight * scale;
-    const wDiff = width - wWidth;
-    const hDiff = height - wHeight;
-    translateX = xPadding*width - wWidth/2;
-    translateY = yPadding*height - wHeight/2;
-    rotate = rotate+'deg';
-    const transform = [
-      {rotate},
-    ];
-    const watermarkStyle = {
-      opacity: props.opacity,
-      transform
-    };
+    const width = this.wm.layout.width * scale;
+    const height = this.wm.layout.height * scale;
+    const left = xPadding*bgw - width/2;
+    const top = yPadding*bgh - height/2;
+    const wDiff = bgw - width;
+    const hDiff = bgh - height;
 
-    this.bg = {
-      uri: bgsource,
-      layout: {
-        width, height, left, top
-      }
-    };
-
-    this.wm = {
-      uri: watermarkSource,
-      layout: {
-        width: wWidth,
-        height: wHeight,
-        left: translateX,
-        top: translateY
-      }
+    this.wm.layout = {
+      width,
+      height,
+      left,
+      top
     };
 
     this.xdiff = wDiff;
@@ -121,15 +99,14 @@ class WatermarkPreviewItem extends Component {
   }
 
   _handlePanResponderGrant(evt, gestureState) {
-    this.xPaddingStart = this.props.xPadding;
-    this.yPaddingStart = this.props.yPadding;
+    this.xPaddingStart = this.props.transform.xPadding;
+    this.yPaddingStart = this.props.transform.yPadding;
   }
 
   _handlePanResponderMove(evt, {dx, dy}) {
     if (this.props.isPannable) {
       const x = this.xPaddingStart + dx/this.bg.layout.width;
       const y = this.yPaddingStart + dy/this.bg.layout.height;
-      console.log(dx, dy, x, y)
       this.props.onChangePosition(x, y);
     }
   }
@@ -151,12 +128,13 @@ class WatermarkPreviewItem extends Component {
 
     const { uri } = src;
     return {
-      uri, width, height, top, left
+      uri,
+      layout: {width, height, top, left}
     };
   }
 
   render() {
-    const {angle, opacity} = this.props;
+    const {angle, opacity} = this.props.transform;
     const watermarkStyle = {
       ...this.wm.layout,
       opacity,
@@ -172,11 +150,11 @@ class WatermarkPreviewItem extends Component {
         {...this._panResponder.panHandlers}
         >
         <Image
-          source={this.bg.uri}
+          source={this.bg}
           style={[styles.preview, this.bg.layout]}
           >
           <Image
-            source={this.wm.uri}
+            source={this.wm}
             style={[watermarkStyle]}
             />
         </Image>

@@ -46,11 +46,13 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
   public void make(final ReadableMap options, final Promise promise) {
     final ReadableArray images = options.getArray("images");
     final String watermark = options.getString("watermark");
-    final float scale = (float) options.getDouble("scale");
-    final float alpha = (float) options.getDouble("opacity");
-    final int angle = options.getInt("angle");
-    final float xPadding = (float) options.getDouble("xPadding");
-    final float yPadding = (float) options.getDouble("yPadding");
+    final ReadableMap transform = options.getMap("transform");
+
+    final float scale = (float) transform.getDouble("scale");
+    final float alpha = (float) transform.getDouble("opacity");
+    final int angle = (int) transform.getDouble("angle");
+    final float xPadding = (float) transform.getDouble("xPadding");
+    final float yPadding = (float) transform.getDouble("yPadding");
 
     final String path = getImagePathOrCreate("watermark");
 

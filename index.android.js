@@ -19,24 +19,19 @@ import { WatermarkTools, UpperTools } from './WatermarkTools';
 import { SaveDialog } from './Dialogs';
 import { TransformController } from './Controllers';
 
-const testimages = {
-  images: [
-  ],
-  watermark: {
-  }
-};
-
 class SimpleWatermark extends Component {
   constructor(props) {
     super(props);
     this.state = {
       watermark: {},
       images: [],
-      opacity: 0.8,
-      scale: 0.5,
-      angle: 0.0,
-      xPadding: 0.5,
-      yPadding: 0.5,
+      transform: {
+        opacity: 0.8,
+        scale: 0.5,
+        angle: 0.0,
+        xPadding: 0.5,
+        yPadding: 0.5,
+      },
       writeProgress: 0.0,
       dialog: "onstart",
       transformOn: false
@@ -53,21 +48,24 @@ class SimpleWatermark extends Component {
   }
 
   _onOpacityUpdate(opacity) {
-    this.setState({...this.state, opacity});
+    this.setState({...this.state, transform: {...this.state.transform, opacity}});
   }
 
   _onScaleUpdate(scale) {
-    this.setState({...this.state, scale});
+    this.setState({...this.state, transform: {...this.state.transform, scale}});
   }
 
   _onAngleUpdate(angle) {
-    this.setState({...this.state, angle});
+    this.setState({...this.state, transform: {...this.state.transform, angle}});
   }
 
   _onPaddingUpdate(xPadding, yPadding) {
     xPadding = Math.max(Math.min(xPadding, 1), 0);
     yPadding = Math.max(Math.min(yPadding, 1), 0);
-    this.setState({...this.state, xPadding, yPadding});
+    this.setState({
+      ...this.state,
+      transform: {...this.state.transform, xPadding, yPadding}
+    });
   }
 
   showProgress(a) {
@@ -82,7 +80,6 @@ class SimpleWatermark extends Component {
     const {
       watermark,
       images,
-      angle,
       ...props
     } = this.state;
 
@@ -91,7 +88,6 @@ class SimpleWatermark extends Component {
       await Watermarker.make({
           images: images.map(i => i.uri),
           watermark: watermark.uri,
-          angle: parseInt(angle),
           ...props
       });
       this.setState({...this.state, dialog:'none', writeProgress: 0.0});
@@ -140,11 +136,7 @@ class SimpleWatermark extends Component {
       return (
         <TransformController
           style={styles.transform_controller}
-          opacity={this.state.opacity}
-          scale={this.state.scale}
-          angle={this.state.angle}
-          xPadding={this.state.xPadding}
-          yPadding={this.state.yPadding}
+          {...this.state.transform}
           onChangeOpacity={this._onOpacityUpdate.bind(this)}
           onChangeScale={this._onScaleUpdate.bind(this)}
           onChangeAngle={this._onAngleUpdate.bind(this)}
