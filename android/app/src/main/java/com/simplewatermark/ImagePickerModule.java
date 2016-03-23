@@ -96,7 +96,6 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
             images.pushMap(image);
           }
         }
-        mPickerPromise.resolve(images);
       }
       else {
         Uri uri = intent.getData();
@@ -105,11 +104,14 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
           if (image != null) {
             images.pushMap(image);
           }
-          mPickerPromise.resolve(images);
         }
-        else {
-          mPickerPromise.reject(E_NO_IMAGE_DATA_FOUND, "No image data found");
-        }
+      }
+
+      if (images.size() > 0) {
+        mPickerPromise.resolve(images);
+      }
+      else {
+        mPickerPromise.reject(E_NO_IMAGE_DATA_FOUND, "No image data found");
       }
     }
     mPickerPromise = null;
@@ -124,6 +126,7 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
     try {
       is = contentResolver.openInputStream(uri);
     } catch (FileNotFoundException e) {
+      android.util.Log.d("Simplewatermark", e.toString());
       return null;
     }
 
