@@ -46,44 +46,43 @@ class SimpleWatermark extends Component {
 
   componentDidMount() {
     DeviceEventEmitter.addListener('watermarkprogress', this.showProgress.bind(this));
-    this.setState({...this.state, dialog: 'none'});
+    this.setState({dialog: 'none'});
   }
 
   _onOpacityUpdate(opacity) {
-    this.setState({...this.state, transform: {...this.state.transform, opacity}});
+    this.setState({transform: {...this.state.transform, opacity}});
   }
 
   _onScaleUpdate(scale) {
-    this.setState({...this.state, transform: {...this.state.transform, scale}});
+    this.setState({transform: {...this.state.transform, scale}});
   }
 
   _onAngleUpdate(angle) {
-    this.setState({...this.state, transform: {...this.state.transform, angle}});
+    this.setState({transform: {...this.state.transform, angle}});
   }
 
   _onPaddingUpdate(xPadding, yPadding) {
     xPadding = Math.max(Math.min(xPadding, 1), 0);
     yPadding = Math.max(Math.min(yPadding, 1), 0);
     this.setState({
-      ...this.state,
       transform: {...this.state.transform, xPadding, yPadding}
     });
   }
 
   _onSavePathUpdate(savePath) {
-    this.setState({...this.state, savePath});
+    this.setState({savePath});
   }
 
   setSavePathDialog() {
-    this.setState({...this.state, dialog: 'savepath'});
+    this.setState({dialog: 'savepath'});
   }
 
   closeDialog() {
-    this.setState({...this.state, dialog: 'none'});
+    this.setState({dialog: 'none'});
   }
 
   showProgress(a) {
-    this.setState({...this.state, writeProgress: a.progress}, () => {
+    this.setState({writeProgress: a.progress}, () => {
       console.log('progress', this.state.writeProgress);
     });
     console.log(this.state);
@@ -97,14 +96,14 @@ class SimpleWatermark extends Component {
       ...props
     } = this.state;
 
-    this.setState({...this.state, dialog: 'onsave', writeProgress: 0.0});
+    this.setState({dialog: 'onsave', writeProgress: 0.0});
     try {
       await Watermarker.make({
           images: images.map(i => i.uri),
           watermark: watermark.uri,
           ...props
       });
-      this.setState({...this.state, dialog:'none', writeProgress: 0.0});
+      this.setState({dialog:'none', writeProgress: 0.0});
       ToastAndroid.show(I18n.t('saved'), ToastAndroid.SHORT);
     } catch (e) {
 
@@ -115,7 +114,7 @@ class SimpleWatermark extends Component {
     try {
       var images = await ImagePicker.launch(true);
       console.log(images);
-      this.setState({...this.state, images })
+      this.setState({images})
     } catch (e) {
       console.error(e);
     }
@@ -125,7 +124,7 @@ class SimpleWatermark extends Component {
     try {
       var [watermark,] = await ImagePicker.launch(false);
       console.log(watermark);
-      this.setState({...this.state, watermark});
+      this.setState({watermark});
     } catch (e) {
       console.error(e);
     }
@@ -133,7 +132,7 @@ class SimpleWatermark extends Component {
 
   toggleTransformController() {
     const transformOn = !this.state.transformOn;
-    this.setState({...this.state, transformOn});
+    this.setState({transformOn});
   }
 
   renderDialog() {

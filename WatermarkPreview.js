@@ -53,7 +53,7 @@ class WatermarkPreviewItem extends Component {
       return;
     }
     console.log(layout);
-    this.setState({...this.state, layout})
+    this.setState({layout})
   }
 
   componentWillMount() {
