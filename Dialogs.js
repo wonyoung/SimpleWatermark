@@ -33,14 +33,18 @@ export class InputTextDialog extends Component {
     return (
       <TouchableWithoutFeedback onPress={this.props.onExit}>
         <View style={styles.dialog} >
-          <View style={styles.inputTextDialog} >
-            <Text>{I18n.t('savePath')}</Text>
-            <TextInput
-              style={styles.inputText}
-              onChangeText={this.props.onChangeText}
-              value={this.props.text}
-              />
-          </View>
+          <View style={{flex:2, alignSelf:'stretch'}} ></View>
+          <TouchableWithoutFeedback >
+            <View style={styles.inputTextDialog} >
+              <Text>{I18n.t('savePath')}</Text>
+              <TextInput
+                style={styles.inputText}
+                onChangeText={this.props.onChangeText}
+                value={this.props.text}
+                />
+            </View>
+          </TouchableWithoutFeedback>
+          <View style={{flex:3, alignSelf:'stretch'}} ></View>
         </View>
       </TouchableWithoutFeedback>
     );
@@ -67,10 +71,7 @@ const styles = StyleSheet.create({
     opacity: 0.6
   },
   inputTextDialog: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 100,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'white'
