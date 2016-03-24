@@ -173,7 +173,7 @@ class SimpleWatermark extends Component {
 
   async launchWatermarkPicker() {
     try {
-      var [watermark,] = await ImagePicker.launch(false);
+      var watermark = await ImagePicker.copy();
       console.log(watermark);
       store.update(STORAGE_KEY, {watermark});
       this.setState({watermark});
