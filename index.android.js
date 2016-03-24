@@ -10,7 +10,7 @@ import React, {
   Text,
   ToastAndroid,
   DeviceEventEmitter,
-  StyleSheet,
+  StyleSheet
 } from 'react-native';
 
 import I18n from 'react-native-i18n';
@@ -19,6 +19,9 @@ import WatermarkPreview from './WatermarkPreview';
 import { WatermarkTools, UpperTools } from './WatermarkTools';
 import { SaveDialog, InputTextDialog } from './Dialogs';
 import { TransformController } from './Controllers';
+import store from 'react-native-simple-store';
+
+const STORAGE_KEY = '@SimpleWatermark:key';
 
 class SimpleWatermark extends Component {
   constructor(props) {
@@ -46,30 +49,78 @@ class SimpleWatermark extends Component {
 
   componentDidMount() {
     DeviceEventEmitter.addListener('watermarkprogress', this.showProgress.bind(this));
+    this.loadInitialState();
+  }
+
+  async loadInitialState() {
+    try {
+      const items = await store.get(STORAGE_KEY);
+
+      if (items !== null) {
+        const {
+          watermark,
+          opacity,
+          scale,
+          angle,
+          xPadding,
+          yPadding,
+          savePath
+        } = items;
+        if (watermark !== undefined) {
+          this.setState({watermark});
+        }
+        if (opacity !== undefined) {
+          this.setState({transform: {...this.state.transform, opacity}});
+        }
+        if (scale !== undefined) {
+          this.setState({transform: {...this.state.transform, scale}});
+        }
+        if (angle !== undefined) {
+          this.setState({transform: {...this.state.transform, angle}});
+        }
+        if (xPadding !== undefined) {
+          this.setState({transform: {...this.state.transform, xPadding}});
+        }
+        if (yPadding !== undefined) {
+          this.setState({transform: {...this.state.transform, yPadding}});
+        }
+        if (savePath !== undefined) {
+          this.setState({savePath});
+        }
+        console.log('storage loaded :', watermark, opacity, savePath);
+      }
+    } catch (e) {
+      console.log('storage load failed',e);
+    }
     this.setState({dialog: 'none'});
   }
 
   _onOpacityUpdate(opacity) {
+    store.update(STORAGE_KEY, {opacity});
     this.setState({transform: {...this.state.transform, opacity}});
   }
 
   _onScaleUpdate(scale) {
+    store.update(STORAGE_KEY, {scale});
     this.setState({transform: {...this.state.transform, scale}});
   }
 
   _onAngleUpdate(angle) {
+    store.update(STORAGE_KEY, {angle});
     this.setState({transform: {...this.state.transform, angle}});
   }
 
   _onPaddingUpdate(xPadding, yPadding) {
     xPadding = Math.max(Math.min(xPadding, 1), 0);
     yPadding = Math.max(Math.min(yPadding, 1), 0);
+    store.update(STORAGE_KEY, {xPadding, yPadding});
     this.setState({
       transform: {...this.state.transform, xPadding, yPadding}
     });
   }
 
   _onSavePathUpdate(savePath) {
+    store.update(STORAGE_KEY, {savePath});
     this.setState({savePath});
   }
 
@@ -124,6 +175,7 @@ class SimpleWatermark extends Component {
     try {
       var [watermark,] = await ImagePicker.launch(false);
       console.log(watermark);
+      store.update(STORAGE_KEY, {watermark});
       this.setState({watermark});
     } catch (e) {
       console.error(e);
