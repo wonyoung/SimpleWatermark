@@ -173,6 +173,7 @@ class SimpleWatermark extends Component {
 
   async launchWatermarkPicker() {
     try {
+      await ImagePicker.clearCache();
       var watermark = await ImagePicker.copy();
       console.log(watermark);
       store.update(STORAGE_KEY, {watermark});
@@ -258,7 +259,7 @@ class Welcome extends Component {
     return (
       <View
         style={styles.welcome} >
-        <Text style={{color:'black', fontSize:24}}>Simple Watermark</Text>
+        <Text style={{color:'black', fontSize:24}}>Simple Watermark  </Text>
       </View>
     );
   }

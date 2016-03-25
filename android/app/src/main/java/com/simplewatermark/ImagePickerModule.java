@@ -188,7 +188,6 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
     BitmapFactory.Options k = new BitmapFactory.Options();
     if (copy) {
       Bitmap bitmap = BitmapFactory.decodeStream(is, null, k);
-      deleteCopiedFiles();
       Uri u = writeFile(bitmap);
       image.putString("uri", u.toString());
     }
@@ -213,8 +212,14 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
     return image;
   }
 
-  private void deleteCopiedFiles() {
+  @ReactMethod
+  public void clearCache(final Promise promise) {
     Activity context = getCurrentActivity();
+    if (context == null) {
+      promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity does not exists");
+      return;
+    }
+
     File filesdir = context.getFilesDir();
     for (File file : filesdir.listFiles(new FilenameFilter() {
       @Override
@@ -224,6 +229,8 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
     })) {
       file.delete();
     }
+
+    promise.resolve(0);
   }
 
   private Uri writeFile(final Bitmap bitmap) {
