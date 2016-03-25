@@ -232,6 +232,9 @@ class SimpleWatermark extends Component {
       <View style={styles.container} >
         <View style={styles.workspace} >
           <WatermarkPreview
+            onChangeOpacity={this._onOpacityUpdate.bind(this)}
+            onChangeScale={this._onScaleUpdate.bind(this)}
+            onChangeAngle={this._onAngleUpdate.bind(this)}
             onChangePosition={this._onPaddingUpdate.bind(this)}
             isPannable={transformOn}
             {...props}

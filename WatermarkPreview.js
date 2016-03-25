@@ -1,7 +1,6 @@
 'use strict';
 import React, {
   Component,
-  PanResponder,
   StyleSheet,
   Text,
   Image,
@@ -9,6 +8,7 @@ import React, {
 } from 'react-native';
 
 import ViewPagerAndroid from './ViewPagerWorkaround';
+import Gesture from './Gesture';
 
 export default class WatermarkPreview extends Component {
     render() {
@@ -57,17 +57,15 @@ class WatermarkPreviewItem extends Component {
   }
 
   componentWillMount() {
-    this._panResponder = PanResponder.create({
+    this.gesture = Gesture.createPanner(this)
+      .composite(Gesture.createScaler(this))
+      .composite(Gesture.createRotator(this), {
       onStartShouldSetPanResponder: (evt, gestureState) => this.props.isPannable,
       onMoveShouldSetPanResponder: (evt, gestureState) => this.props.isPannable,
-      onPanResponderGrant: this._handlePanResponderGrant.bind(this),
-      onPanResponderMove: this._handlePanResponderMove.bind(this),
-      onPanResponderRelease: this._handlePanResponderEnd.bind(this),
-      onPanResponderTerminate: this._handlePanResponderEnd.bind(this),
     });
+
     this._updatePositions(this.props, this.state);
   }
-
 
   componentWillUpdate(props, state) {
     this._updatePositions(props, state);
@@ -98,12 +96,12 @@ class WatermarkPreviewItem extends Component {
     this.ydiff = hDiff;
   }
 
-  _handlePanResponderGrant(evt, gestureState) {
+  onPanBegin() {
     this.xPaddingStart = this.props.transform.xPadding;
     this.yPaddingStart = this.props.transform.yPadding;
   }
 
-  _handlePanResponderMove(evt, {dx, dy}) {
+  onPanMove(dx, dy) {
     if (this.props.isPannable) {
       const x = this.xPaddingStart + dx/this.bg.layout.width;
       const y = this.yPaddingStart + dy/this.bg.layout.height;
@@ -111,8 +109,25 @@ class WatermarkPreviewItem extends Component {
     }
   }
 
-  _handlePanResponderEnd(evt, gestureState) {
+  onScaleBegin() {
+    this.scale0 = this.props.transform.scale;
+  }
 
+  onScale(scale) {
+    if (this.props.isPannable) {
+      this.props.onChangeScale(this.scale0*scale);
+    }
+  }
+
+  onRotateBegin() {
+    this.rotate0 = this.props.transform.angle;
+  }
+
+  onRotate(degree) {
+    if (this.props.isPannable) {
+      const d = (this.rotate0 - degree + 360) % 360;
+      this.props.onChangeAngle(d);
+    }
   }
 
   imageWithAspectRatio(src, layout) {
@@ -144,20 +159,21 @@ class WatermarkPreviewItem extends Component {
     };
 
     return (
-      <View
-        style={styles.container}
-        onLayout={this._onLayout.bind(this)}
-        {...this._panResponder.panHandlers}
-        >
-        <Image
-          source={this.bg}
-          style={[styles.preview, this.bg.layout]}
+      <View style={styles.viewPager} {...this.gesture.panHandlers} >
+        <View
+          style={styles.container}
+          onLayout={this._onLayout.bind(this)}
           >
           <Image
-            source={this.wm}
-            style={[watermarkStyle]}
-            />
-        </Image>
+            source={this.bg}
+            style={[styles.preview, this.bg.layout]}
+            >
+            <Image
+              source={this.wm}
+              style={[watermarkStyle]}
+              />
+          </Image>
+        </View>
       </View>
     );
   }
