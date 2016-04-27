@@ -36,10 +36,13 @@ class SimpleWatermark extends Component {
         xPadding: 0.5,
         yPadding: 0.5,
       },
+
       writeProgress: 0.0,
       dialog: "onstart",
       transformOn: false,
-      savePath: "/watermark"
+      savePath: "/watermark",
+
+      currentPage: 0
     };
   }
 
@@ -119,6 +122,12 @@ class SimpleWatermark extends Component {
     });
   }
 
+  _onPageUpdate(currentPage) {
+    this.setState({
+      currentPage
+    });
+  }
+
   _onSavePathUpdate(savePath) {
     store.update(STORAGE_KEY, {savePath});
     this.setState({savePath});
@@ -163,8 +172,8 @@ class SimpleWatermark extends Component {
 
   async launchImagePicker() {
     try {
-      var images = await ImagePicker.launch(true);
-      console.log(images);
+      var added = await ImagePicker.launch(true);
+      const images = this.state.images.concat(added);
       this.setState({images})
     } catch (e) {
       console.error(e);
@@ -186,6 +195,16 @@ class SimpleWatermark extends Component {
   toggleTransformController() {
     const transformOn = !this.state.transformOn;
     this.setState({transformOn});
+  }
+
+  removeCurrentImage() {
+    this.state.images.splice(this.state.currentPage, 1);
+    const prevPage = this.state.currentPage;
+    const images = this.state.images;
+    const currentPage = prevPage < images.length ? prevPage:(prevPage > 0) ? (prevPage - 1):0;
+
+    this.setState({images, currentPage});
+    this.preview.go(currentPage);
   }
 
   renderDialog() {
@@ -237,6 +256,8 @@ class SimpleWatermark extends Component {
             onChangeAngle={this._onAngleUpdate.bind(this)}
             onChangePosition={this._onPaddingUpdate.bind(this)}
             isPannable={transformOn}
+            onChangePage={this._onPageUpdate.bind(this)}
+            ref={preview => this.preview = preview}
             {...props}
             />
           { this.renderTransformController() }
@@ -245,6 +266,7 @@ class SimpleWatermark extends Component {
           onImageSelect={() => this.launchImagePicker()}
           onWatermarkSelect={() => this.launchWatermarkPicker()}
           onToolsToggle={() => this.toggleTransformController()}
+          onRemove={() => this.removeCurrentImage()}
           />
         <UpperTools
           save={this.shouldSave()}

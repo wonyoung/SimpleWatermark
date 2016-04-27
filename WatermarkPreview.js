@@ -14,15 +14,18 @@ export default class WatermarkPreview extends Component {
     render() {
       const {
         images,
+        currentPage,
         ...props
       } = this.props;
 
       return (
         <ViewPagerAndroid
           style={styles.viewPager}
-          initialPage={0} >
+          initialPage={currentPage}
+          onPageSelected={(e) => this.props.onChangePage(e.nativeEvent.position)}
+          ref={pager => this.pager = pager}>
           {
-            this.props.images.map((image, i) => (
+            images.map((image, i) => (
               <View key={i} collapsable={false}>
                 <WatermarkPreviewItem
                   image={image}
@@ -34,6 +37,11 @@ export default class WatermarkPreview extends Component {
         </ViewPagerAndroid>
       );
     }
+
+    go(p) {
+      this.pager.setPageWithoutAnimation(p);
+    }
+
 }
 
 class WatermarkPreviewItem extends Component {

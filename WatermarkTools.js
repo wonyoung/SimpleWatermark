@@ -23,7 +23,7 @@ export class WatermarkTools extends Component {
         <TouchableOpacity onPress={this.props.onImageSelect} >
           <Image
             style={styles.button}
-            source={require('./img/ic_photo_library_white.png')}
+            source={require('./img/ic_add_to_photos_white.png')}
             />
         </TouchableOpacity>
         <TouchableOpacity onPress={this.props.onWatermarkSelect} >
@@ -36,6 +36,12 @@ export class WatermarkTools extends Component {
           <Image
             style={styles.button}
             source={require('./img/ic_tune_white.png')}
+            />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={this.props.onRemove} >
+          <Image
+            style={styles.button}
+            source={require('./img/ic_delete_white.png')}
             />
         </TouchableOpacity>
       </View>
