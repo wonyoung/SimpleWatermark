@@ -9,7 +9,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 
 import android.net.Uri;
-import android.app.Activity;
 import android.content.ContentResolver;
 
 import com.facebook.react.bridge.Arguments;
@@ -105,8 +104,8 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
                             final float scale, final float alpha,
                             final int angle,
                             final float xPadding, final float yPadding) {
-    Activity activity = getCurrentActivity();
-    ContentResolver cr = activity.getContentResolver();
+    ReactApplicationContext reactApplicationContext = getReactApplicationContext();
+    ContentResolver cr = reactApplicationContext.getContentResolver();
 
     InputStream fgis, bgis;
     try {
@@ -186,9 +185,8 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
   private void contentsUpdate(final String filename) {
     Intent mediascanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
     mediascanIntent.setData(Uri.fromFile(new File(filename)));
-    Activity activity = getCurrentActivity();
-
-    activity.sendBroadcast(mediascanIntent);
+    ReactApplicationContext reactApplicationContext = getReactApplicationContext();
+    reactApplicationContext.sendBroadcast(mediascanIntent);
   }
 
   private int position(final float padding, final int s1, final int s2) {
