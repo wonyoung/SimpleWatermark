@@ -142,10 +142,11 @@ class SimpleWatermark extends Component {
   }
 
   showProgress(a) {
-    this.setState({writeProgress: a.progress}, () => {
-      console.log('progress', this.state.writeProgress);
+    this.setState({
+      writeProgress: a.progress,
+      currentPage: a.current
     });
-    console.log(this.state);
+    this.preview.go(a.current);
   }
 
   async export() {
@@ -269,6 +270,8 @@ class SimpleWatermark extends Component {
           onRemove={() => this.removeCurrentImage()}
           />
         <UpperTools
+          current={this.state.currentPage + 1}
+          total={this.state.images.length}
           save={this.shouldSave()}
           onSave={() => this.export()}
           onSavePathSelected={() => this.setSavePathDialog()}

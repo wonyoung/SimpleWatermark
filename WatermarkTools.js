@@ -62,6 +62,7 @@ export class UpperTools extends Component {
   render() {
     let actions = [];
     const offset = this.props.save ? 0:1;
+    const title = this.props.total > 0 ? (this.props.current + ' / ' + this.props.total):'';
     if (this.props.save) {
       actions.push({
         title: I18n.t('save'),
@@ -77,6 +78,8 @@ export class UpperTools extends Component {
     return (
       <ToolbarAndroid
         style={styles.toolbar}
+        title={title}
+        titleColor='white'
         actions={actions}
         onActionSelected={(position) => this._onActionSelected(position + offset)} />
     );

@@ -66,6 +66,7 @@ public class WatermarkerModule extends ReactContextBaseJavaModule {
           flattenImage(filename, background, watermark, scale, alpha, angle, xPadding, yPadding);
           WritableMap map = Arguments.createMap();
           map.putDouble("progress", (double)(i+1) / images.size());
+          map.putInt("current", i);
           map.putInt("total", images.size());
           sendEvent(getReactApplicationContext(), "watermarkprogress", map);
         }
